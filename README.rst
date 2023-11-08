@@ -1,5 +1,5 @@
 ======
-SunTzu
+Sun Tzu: The Art of Data Science
 ======
 
 

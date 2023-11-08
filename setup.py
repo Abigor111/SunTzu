@@ -12,11 +12,11 @@ with open('HISTORY.rst') as history_file:
 
 requirements = ['Click>=7.0', ]
 
-test_requirements = [ ]
+test_requirements = ["" ]
 
 setup(
     author="Igor Coimbra Carvalheira",
-    author_email='igorcarvalheira.282486@epvl.pt',
+    author_email='igorccarvalheira111@gmail.com',
     python_requires='>=3.6',
     classifiers=[
         'Development Status :: 2 - Pre-Alpha',
@@ -38,7 +38,7 @@ setup(
     license="MIT license",
     long_description=readme + '\n\n' + history,
     include_package_data=True,
-    keywords='suntzu',
+    keywords='suntzu, datascience, data science',
     name='suntzu',
     packages=find_packages(include=['suntzu', 'suntzu.*']),
     test_suite='tests',

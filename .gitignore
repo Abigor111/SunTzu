@@ -104,3 +104,14 @@ ENV/
 # IDE settings
 .vscode/
 .idea/
+
+# Images
+*.png
+*.jpg
+*.jpeg
+*.gif
+*.ico
+*.svg
+*.psd
+*.ai
+*.raw

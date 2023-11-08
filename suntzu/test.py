@@ -6,7 +6,7 @@ class TestDataFrame(pl.DataFrame):
             df = pl.read_csv(path).to_pandas()
             return cls(df)
         except Exception as e:
-            print(f"Erro ao ler o arquivo CSV: {e}")
+            print(f"Error in reading the file: {e}")
             return cls(None)
 
     def view(self):

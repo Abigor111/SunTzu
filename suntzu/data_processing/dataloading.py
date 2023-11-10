@@ -1,10 +1,14 @@
 import polars as pl
-class TestDataFrame(pl.DataFrame):
+class Dataloading(pl.DataFrame):
     @classmethod
     def read_file(cls, path):
         try:
-            df = pl.read_csv(path).to_pandas()
-            return cls(df)
+            if path.endswith(".csv"):
+                df = pl.read_csv(path).to_pandas()
+                return cls(df)
+            elif path.endswith(".parquet"):
+                df = pl.read_parquet(path).to_pandas()
+                return cls(df)
         except Exception as e:
             print(f"Error in reading the file: {e}")
             return cls(None)

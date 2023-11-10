@@ -115,3 +115,14 @@ ENV/
 *.psd
 *.ai
 *.raw
+#data 
+*.csv
+*.json
+*.xlsx
+*.db
+*.zip
+*.tar.gz
+*.tgz
+*.rar
+*.7z
+*.parquet

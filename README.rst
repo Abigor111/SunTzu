@@ -1,7 +1,7 @@
 ======
 Sun Tzu: The Art of Data Science
 ======
-.. image:: ./logo.png
+.. image:: logo.png
         :width: 400
 .. image:: https://img.shields.io/pypi/v/suntzu.svg
         :target: https://pypi.python.org/pypi/suntzu

@@ -1,5 +1,5 @@
 import polars as pl
-class Dataloading(pl.DataFrame):
+class Loading(pl.DataFrame):
     @classmethod
     def read_file(cls, path):
         try:
@@ -9,19 +9,20 @@ class Dataloading(pl.DataFrame):
             elif path.endswith(".parquet"):
                 df = pl.read_parquet(path).to_pandas()
                 return cls(df)
+            else:
+                raise ValueError(f"Unsupported file format for {path}. Supported formats: CSV, Parquet")
         except Exception as e:
-            print(f"Error in reading the file: {e}")
-            return cls(None)
+            raise RuntimeError(f"Error in reading the file {path}: {e}")
 
     def view(self):
         if self.is_empty():
-            print("Nenhum DataFrame carregado ainda.")
+                print("No DataFrame loaded yet.")
         else:
             return self.head()
 
     def get_dims(self):
         if self.is_empty():
-            print("Nenhum DataFrame carregado ainda.")
+            print("No DataFrame loaded yet.")
         else:
             print(f"Cols: {self.shape[1]}")
             print(f"Rows: {self.shape[0]}")

@@ -104,7 +104,10 @@ ENV/
 # IDE settings
 .vscode/
 .idea/
-
+.editorconfig
+.travis.yml
+MANIFEST.in
+tox.ini
 # Images
 *.png
 *.jpg

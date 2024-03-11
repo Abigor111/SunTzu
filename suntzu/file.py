@@ -7,7 +7,23 @@ from .cleaning import Cleaning
 from .metadata import netCDF_Metadata
 from .metadata import ParquetMetadata
 class File:
+    """
+    A class that represents a file and provides methods and attributes for working with different file formats such as CSV, Parquet, JSON, Excel, XML, Feather, and NetCDF.
+
+    Attributes:
+        _df (pandas.DataFrame): The pandas DataFrame object representing the file data.
+        _xr (xarray.Dataset): The xarray Dataset object representing the file data.
+        statistics (Statistics): An instance of the Statistics class for performing statistical operations on the file data.
+        cleaning (Cleaning): An instance of the Cleaning class for performing cleaning operations on the file data.
+        metadata (ParquetMetadata or netCDF_Metadata): An instance of the ParquetMetadata class for accessing metadata of Parquet files or the netCDF_Metadata class for accessing metadata of NetCDF files.
+    """
     def __init__(self, df):
+        """
+        Initializes a File object with a pandas DataFrame or an xarray Dataset.
+
+        Args:
+            df (pandas.DataFrame or xarray.Dataset): The data to be stored in the File object.
+        """
         if isinstance(df, pd.DataFrame):
             self._df = df
             self.statistics = Statistics(df)
@@ -17,11 +33,25 @@ class File:
             self._xr = df
             self.metadata = netCDF_Metadata(df)
         self._getattr_locked = False
+
     def __getattr__(self, name):
-        # Verificar se o método __getattr__ está bloqueado
+        """
+        Overrides the default attribute access behavior to provide access to statistics, cleaning, and metadata methods.
+
+        Args:
+            name (str): The name of the attribute to access.
+
+        Returns:
+            The attribute value if found.
+
+        Raises:
+            AttributeError: If the attribute is not found.
+        """
+        """
+        This method provides access to dynamic attributes such as statistics, cleaning, and metadata methods.
+        """
         if self._getattr_locked:
             return None
-        # Bloquear o método __getattr__ para evitar recursão infinita
         self._getattr_locked = True
         try:
             if hasattr(self, '_df') and name != '_df':
@@ -35,20 +65,27 @@ class File:
                 if hasattr(self.metadata, name):
                     return getattr(self.metadata, name)
         finally:
-            # Desbloquear o método __getattr__ após a execução
             self._getattr_locked = False
         
-        # Se nenhum atributo for encontrado, levantamos um AttributeError
-        raise AttributeError(f"'File' object has no attribute '{name}'")
-
+        raise AttributeError(f"{self} object has no attribute '{name}'")
+    @staticmethod
     def get_file_extension(path):
+        """
+        Returns the file extension of a given file path.
+
+        Args:
+            path (str): The file path.
+
+        Returns:
+            str: The file extension.
+        """
         return os.path.splitext(path)[1]
+
     def export_to_file(self, filename):
         """
         Exports data to a file with a specified filename.
 
         Args:
-            self: The data object that needs to be exported.
             filename (str): The name of the file to export the data to.
 
         Raises:
@@ -68,19 +105,17 @@ class File:
             raise FileExistsError(f"{filename} already exists. Please change it or delete it.")
 def read_file(path, **kwargs):
     """
-    Read a file and return a DataFrame object.
+    Reads a file from the given path and returns the data in a structured format.
 
     Args:
-        cls: The class to be instantiated with the DataFrame object.
-        path: The path to the file.
-        **kwargs: Additional keyword arguments to be passed to the file reader.
+        path (str): The path to the file to be read.
+        **kwargs: Additional options to customize the file reading process.
 
     Returns:
-        An instance of the specified class with the DataFrame object.
+        File object or list of tables: The data from the file in a structured format, except for HTML files where a list of tables is returned.
 
     Raises:
-        TypeError: If the path is not a string.
-        ValueError: If the file format is not supported.
+        ValueError: If the given path is not a valid file or the file format is not supported.
         RuntimeError: If there is an error in reading the file.
     """
     if not os.path.isfile(path):
@@ -113,6 +148,6 @@ def read_file(path, **kwargs):
             df = xr.open_dataset(path, **kwargs)
             return File(df)
         else:
-            raise ValueError(f"Unsupported file format for {path}. Supported formats: CSV, Parquet, Json, Excel, Avro, Arrow")
+            raise ValueError(f"Unsupported file format for {path}. Supported formats: CSV, Parquet, JSON, Excel, XML, Feather, and NetCDF.")
     except Exception as e:
         raise RuntimeError(f"Error in reading the file {path}: {e}")

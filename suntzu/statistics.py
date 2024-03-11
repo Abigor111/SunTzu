@@ -3,6 +3,51 @@ import numpy as np
 from IPython.display import display
 import xarray as xr
 class Statistics(pd.DataFrame):
+    """
+    The `Statistics` class is a subclass of the `pd.DataFrame` class in the pandas library. It provides additional methods for performing statistical analysis and data exploration on a DataFrame, such as finding maximum and minimum values, counting occurrences, calculating percentages, and generating insights about the data.
+
+    Main functionalities:
+    - Getting the data types of the columns
+    - Getting the column names
+    - Getting the data types of the columns as a DataFrame
+    - Converting the columns to the best data type
+    - Calculating the memory usage of each column
+    - Calculating the memory usage percentage of each column
+    - Calculating the number of null values in each column
+    - Calculating the percentage of null values in each column
+    - Calculating the number of unique values in each column
+    - Finding maximum and minimum values in each column of a DataFrame
+    - Counting occurrences of maximum and minimum values
+    - Calculating the percentage of maximum and minimum values
+    - Generating insights about the data, such as memory usage and number of missing values
+    - Filtering the data based on specified conditions
+
+    Methods:
+    - get_dtypes(cols=None, output=True): Gets the data types of the specified columns.
+    - get_cols(): Gets the column names of the DataFrame.
+    - get_cols_dtypes(cols=None, get_df=True): Returns the data types of the specified columns in a DataFrame.
+    - convert_cols(): Converts the columns to the best data type.
+    - get_memory_usage(cols=None, output=True, get_total=True, show_df=False, unit="kb", use_deep=True, get_dict=False): Calculates the memory usage of each column.
+    - get_memory_usage_percentage(cols=None, output=True, unit="kb", get_total=True, show_df=False, use_deep=True, get_dict=False): Calculates the memory usage percentage of each column.
+    - get_nulls_count(cols=None, output=True, show_df=False, get_total=True, get_dict=False): Calculates the number of null values in each column.
+    - get_null_percentage(cols=None, output=True, show_df=False, get_total=True, get_dict=False): Calculates the percentage of null values in each column.
+    - get_num_of_unique_values(cols=None, output=True, show_df=False): Calculates the number of unique values in specified columns.
+    - get_max_values(cols=None, output=True, show_df=False): Finds the maximum values or the most common values in each column of a DataFrame.
+    - get_max_values_count(cols=None, output=True, show_df=False): Returns the number of occurrences of the maximum value or the most common value in each column of a DataFrame.
+    - get_max_values_percentage(cols=None, output=True, show_df=False): Calculates the percentage of the maximum value or the most common value in each column of a DataFrame.
+    - get_min_values(cols=None, output=True, show_df=False): Retrieves the minimum values or the less common values in each column of a DataFrame.
+    - get_min_values_count(cols=None, output=True, show_df=False): Calculates the count of the minimum values or the count of the less common values in each column of a DataFrame.
+    - get_min_values_percentage(cols=None, output=True, show_df=False): Calculates the percentage of the minimum value or the percentage of the less common value in each column of a DataFrame.
+    - get_dataframe_mem_insight(transpose=False): Generates memory insights for each column in a given DataFrame.
+    - get_dataframe_values_insight(transpose=False): Generates insights about the values in each column of a given DataFrame.
+    - find(conditions, AND=True, OR=False): Filters the data in a DataFrame based on specified conditions using logical operators (AND or OR).
+    - find_replace(conditions, replace_with, AND=True, OR=False): Finds rows in a DataFrame that meet certain conditions and replaces values in a specified column with a new value.
+    - find_delete(conditions, AND=True, OR=False): Finds rows in the DataFrame that meet certain conditions, deletes those rows from the DataFrame, and returns the modified DataFrame.
+    
+    Fields:
+    - The `Statistics` class inherits all the fields from the `pd.DataFrame` class, which include the columns, index, and data of the DataFrame.
+    """
+
     def get_dtypes(self, cols=None, output=True):
         """
         Get the data types of the specified columns.
@@ -93,6 +138,7 @@ class Statistics(pd.DataFrame):
             return bool(min_value), bool(max_value)
         else:
             return min_value, max_value
+    
     def get_best_dtypes(self, cols=None, convert=False, output=True, show_df=False):
         """
         Determines the best data type for each column in a DataFrame.

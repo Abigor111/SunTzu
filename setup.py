@@ -12,7 +12,7 @@ with open('HISTORY.rst') as history_file:
 
 requirements = ['Click>=7.0', ]
 
-test_requirements = ["" ]
+test_requirements = [""]
 
 setup(
     author="Igor Coimbra Carvalheira",

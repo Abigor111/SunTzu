@@ -4,13 +4,31 @@
 
 from setuptools import setup, find_packages
 
-with open('README.rst') as readme_file:
+with open('README.md') as readme_file:
     readme = readme_file.read()
 
-with open('HISTORY.rst') as history_file:
+with open('HISTORY.md') as history_file:
     history = history_file.read()
 
-requirements = ['Click>=7.0', ]
+requirements = [
+    "pip==19.2.3",
+    "python>=3.7",
+    "bump2version==0.5.11",
+    "wheel==0.33.6",
+    "watchdog==0.9.0",
+    "flake8==3.7.8",
+    "tox==3.14.0",
+    "coverage==4.5.4",
+    "Sphinx==1.8.5",
+    "twine==1.14.0",
+    "Click==7.1.2",
+    "pandas==2.0.2",
+    "xarray==2023.6.0",
+    "pyarrow==12.0.1",
+    "numpy==1.24.4",
+    "jsonschema==4.17.3"
+]
+
 
 test_requirements = [""]
 
@@ -44,6 +62,6 @@ setup(
     test_suite='tests',
     tests_require=test_requirements,
     url='https://github.com/Abigor111/suntzu',
-    version='0.1.0',
+    version='0.2.2',
     zip_safe=False,
 )

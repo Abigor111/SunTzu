@@ -821,7 +821,7 @@ class Statistics(pd.DataFrame):
                 f"{Statistics.get_memory_usage_percentage(self, [col], False)}%",
                 Statistics.get_nulls_count(self, [col], False),
                 f"{Statistics.get_null_percentage(self, [col], False)}%",
-                Statistics.get_num_of_unique_values(self, [col], False)
+                list(Statistics.get_num_of_unique_values(self, [col], False).values())[0],
             ]
             dataframe.append(col_info)
     

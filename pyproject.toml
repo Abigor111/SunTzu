@@ -1,0 +1,30 @@
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.poetry]
+name = "suntzu"
+authors = ["Igor Coimbra Carvalheira <igorccarvalheira111@gmail.com>"]
+version = "0.2.2"
+description = "Library Fusion in Python for Data Analysis: Streamlining data analysis workflows by combining and enhancing Python libraries."
+license = "MIT"
+readme = "README.md"
+repository = "https://github.com/Abigor111/suntzu"
+
+[tool.poetry.dependencies]
+python = "^3.6"
+pip = "==19.2.3"
+bump2version = "==0.5.11"
+wheel = "==0.33.6"
+watchdog = "==0.9.0"
+flake8 = "==3.7.8"
+tox = "==3.14.0"
+coverage = "==4.5.4"
+Sphinx = "==1.8.5"
+twine = "==1.14.0"
+Click = "==7.1.2"
+pandas = "==2.0.2"
+xarray = "==2023.6.0"
+pyarrow = "==12.0.1"
+numpy = "==1.24.4"
+jsonschema = "==4.17.3"

@@ -129,3 +129,5 @@ tox.ini
 *.rar
 *.7z
 *.parquet
+*.nc
+/imgs

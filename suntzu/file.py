@@ -7,87 +7,78 @@ from .cleaning import Cleaning
 from .metadata import netCDF_Metadata
 from .metadata import ParquetMetadata
 
-class DataFrameFile:
-    def __init__(self, df: pd.DataFrame):
-        """
-        Initializes a File object with a pandas DataFrame.
+# class DataFrameFile:
+#     def __init__(self, df: pd.DataFrame):
+#         """
+#         Initializes a File object with a pandas DataFrame.
 
-        Args:
-            df (pandas.DataFrame or xarray.Dataset): The data to be stored in the File object.
-        """
-        super().__init__()
+#         Args:
+#             df (pandas.DataFrame or xarray.Dataset): The data to be stored in the File object.
+#         """
+#         super().__init__()
 
-        self.df = df
-        self.statistics = Statistics(df)
-        self.cleaning = Cleaning(df)
-        self.parquet_metadata = ParquetMetadata(df)
+#         self.df = df
+#         self.statistics = Statistics(df)
+#         self.cleaning = Cleaning(df)
+#         self.parquet_metadata = ParquetMetadata(df)
 
-    def __getattr__(self, name):
-        return getattr(self.df, name)
+#     def __getattr__(self, name):
+#         return getattr(self.df, name)
 
-
-class File:
+class PandasFile:
     """
-    A class that represents a file and provides methods and attributes for working with different file formats such as CSV, Parquet, JSON, Excel, XML, Feather, and NetCDF.
+    A class that represents a file and provides methods and attributes for working with different file formats such as CSV, Parquet, JSON, Excel, XML, Feather, excluding netCDF_Metadata.
 
     Attributes:
         _df (pandas.DataFrame): The pandas DataFrame object representing the file data.
         _xr (xarray.Dataset): The xarray Dataset object representing the file data.
         statistics (Statistics): An instance of the Statistics class for performing statistical operations on the file data.
         cleaning (Cleaning): An instance of the Cleaning class for performing cleaning operations on the file data.
-        metadata (ParquetMetadata or netCDF_Metadata): An instance of the ParquetMetadata class for accessing metadata of Parquet files or the netCDF_Metadata class for accessing metadata of NetCDF files.
+        metadata (ParquetMetadata): An instance of the ParquetMetadata class for accessing metadata of Parquet files.
     """
 
-    def __init__(self, df):
+    def __init__(self, df: pd.DataFrame):
+        self._df = df
+        self.statistics = Statistics(df)
+        self.cleaning = Cleaning(df)
+        # if isinstance(df, pd.DataFrame):
+        self.metadata = ParquetMetadata(df)
+        # elif isinstance(df, xr.Dataset):
+            # raise ValueError("PandasFile does not support xarray Dataset.")
+    def capitalize_cols_name(self, cols = None):
         """
-        Initializes a File object with a pandas DataFrame or an xarray Dataset.
+        Capitalizes the column names of the DataFrame.
 
-        Args:
-            df (pandas.DataFrame or xarray.Dataset): The data to be stored in the File object.
-        """
-        if isinstance(df, pd.DataFrame):
-            self._df = df
-            self.statistics = Statistics(df)
-            self.cleaning = Cleaning(df)
-            self.parquet_metadata = ParquetMetadata(df)
-        elif isinstance(df, xr.Dataset):
-            self._xr = df
-            self.netCDF_metadata = netCDF_Metadata(df)
-        self._getattr_locked = False
-
-    def __getattr__(self, name) -> pd.DataFrame | xr.Dataset | Any:
-        """
-        Overrides the default attribute access behavior to provide access to statistics, cleaning, and metadata methods.
-
-        Args:
-            name (str): The name of the attribute to access.
+        Parameters:
+            cols (list, optional): List of column names to be capitalized. If None, all columns will be capitalized. Defaults to None.
 
         Returns:
-            The attribute value if found.
+            pandas.DataFrame: DataFrame with capitalized column names.
+        """
+        return self.cleaning.capitalize_cols_name()
+class Xarray:
+    """
+    A class that represents a file and provides methods and attributes for working with different file formats such as CSV, Parquet, JSON, Excel, XML, Feather, excluding ParquetMetadata.
 
-        Raises:
-            AttributeError: If the attribute is not found.
-        """
-        """
-        This method provides access to dynamic attributes such as statistics, cleaning, and metadata methods.
-        """
+    Attributes:
+        _df (pandas.DataFrame): The pandas DataFrame object representing the file data.
+        _xr (xarray.Dataset): The xarray Dataset object representing the file data.
+        statistics (Statistics): An instance of the Statistics class for performing statistical operations on the file data.
+        cleaning (Cleaning): An instance of the Cleaning class for performing cleaning operations on the file data.
+        metadata (netCDF_Metadata): An instance of the netCDF_Metadata class for accessing metadata of NetCDF files.
+    """
+
+    def __init__(self, ds):
+        self._ds = ds
+        self.statistics = Statistics(ds)
+        self.cleaning = Cleaning(ds)
+        if isinstance(ds, xr.Dataset):
+            self.metadata = netCDF_Metadata(ds)
+        elif isinstance(ds, pd.DataFrame):
+            raise ValueError("FileWithoutParquet does not support pandas Dataframe.")
         
-        if name == '_df':
-            return self._df
 
-        if name == '_xr':
-            return self._xr
-
-        if hasattr(self.statistics, name):
-            return getattr(self.statistics, name)
-        elif hasattr(self.cleaning, name):
-            return getattr(self.cleaning, name)
-        elif hasattr(self.parquet_metadata, name):
-            return getattr(self.parquet_metadata, name)
-        elif hasattr(self.netCDF_metadata, name):
-            return getattr(self.netCDF_metadata, name)
-        
-        raise AttributeError(f"{self} object has no attribute '{name}'")
+class File:
     @staticmethod
     def get_file_extension(path):
         """
@@ -123,7 +114,9 @@ class File:
                 raise ValueError(f"Invalid file extension. Please provide a valid filename. Valid file extesions {suffixs}.")
         else:
             raise FileExistsError(f"{filename} already exists. Please change it or delete it.")
-def read_file(path: str, **kwargs) -> File:
+        
+from typing import Union
+def read_file(path: str, **kwargs) -> 'Union[Xarray, PandasFile]':
     """
     Reads a file from the given path and returns the data in a structured format.
 
@@ -145,28 +138,28 @@ def read_file(path: str, **kwargs) -> File:
         extension = File.get_file_extension(path)
         if extension == ".csv":
             df = pd.read_csv(path, **kwargs)
-            return File(df)
+            return PandasFile(df)
         elif extension == ".parquet":
             df = pd.read_parquet(path, **kwargs)
-            return DataFrameFile(df)
+            return df
         elif extension == ".json":
             df = pd.read_json(path, **kwargs)
-            return File(df)
+            return PandasFile(df)
         elif extension == ".xlsx":
             df = pd.read_excel(path, **kwargs)
-            return File(df)
+            return PandasFile(df)
         elif extension == ".xml":
             df = pd.read_xml(path, **kwargs)
-            return File(df)
+            return PandasFile(df)
         elif extension == ".feather":
             df = pd.read_feather(path, **kwargs)
-            return File(df)
+            return PandasFile(df)
         elif extension == ".html":
             df = pd.read_html(path, **kwargs)
-            return File(df)
+            return PandasFile(df)
         elif extension == ".nc":
             df = xr.open_dataset(path, **kwargs)
-            return File(df)
+            return Xarray(df)
         else:
             raise ValueError(f"Unsupported file format for {path}. Supported formats: CSV, Parquet, JSON, Excel, XML, Feather, and NetCDF.")
     except Exception as e:

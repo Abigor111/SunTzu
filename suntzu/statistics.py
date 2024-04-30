@@ -240,9 +240,12 @@ class Statistics(pd.DataFrame):
             dataframe = pd.DataFrame(dataframe, columns=["Column_Name", "Best_Dtype"])
             dataframe = dataframe1.merge(dataframe, how="inner", on="Column_Name")
             display(dataframe)
-            return self
+            print(type(self))
+            from .file import PandasFile
+            return PandasFile(self)
         elif convert:
-            return self
+            from .file import PandasFile
+            return PandasFile(self)
         elif show_df:
             dataframe1 = Statistics.get_cols_dtypes(self, get_df=True)
             dataframe = pd.DataFrame(dataframe, columns=["Column_Name", "Best_Dtype"])
@@ -307,12 +310,15 @@ class Statistics(pd.DataFrame):
             if get_total:
                 n_rows = len(self.columns) + 1
                 display(dataframe.head(n_rows))
+                total = round(total, 2)
                 return total
             else:
                 return dataframe
-        if output:   
-                print(f"Total: {total} {unit}")
+        if output:
+            total = round(total, 2)   
+            print(f"Total: {total} {unit}")
         if get_total:
+            total = round(total, 2)
             return total
         if get_dict:
             return num_of_memory
@@ -817,7 +823,7 @@ class Statistics(pd.DataFrame):
                 col,
                 str(Statistics.get_dtypes(self, [col], False)).strip("[]'"),
                 Statistics.get_best_dtypes(self, [col], False, False),
-                Statistics.get_memory_usage(self, [col], False),
+                f"{Statistics.get_memory_usage(self, [col], False)} kb",
                 f"{Statistics.get_memory_usage_percentage(self, [col], False)}%",
                 Statistics.get_nulls_count(self, [col], False),
                 f"{Statistics.get_null_percentage(self, [col], False)}%",

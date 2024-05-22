@@ -46,7 +46,7 @@ setup(
         'Programming Language :: Python :: 3.7',
         'Programming Language :: Python :: 3.8',
     ],
-    description="Library Fusion in Python for Data Analysis: Streamlining data analysis workflows by combining and enhancing Python libraries.",
+    description = "SunTzu is a Data Science Library that simplifies data tasks, empowering users with robust data science solutions for faster, meaningful analysis.",
     entry_points={
         'console_scripts': [
             'suntzu=suntzu.cli:main',

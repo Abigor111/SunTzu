@@ -1,5 +1,6 @@
 from .statistics import Statistics
 import pandas as pd
+from typing import Union, Optional
 class Cleaning(pd.DataFrame):
     """
     The `Cleaning` class is a subclass of the `pd.DataFrame` class in the pandas library. It provides various methods for cleaning and transforming data in a DataFrame.
@@ -97,7 +98,7 @@ class Cleaning(pd.DataFrame):
         dataframe = self.copy()
         dataframe = self.rename(columns=dict(zip(cols, map(str.upper, cols))))
         return dataframe
-    def remove_cols_character(self, cols=None, characters=['_'], add_new_character=False, new_character=" "):
+    def remove_cols_character(self, cols=None, characters: Union[str, list] =['_'], add_new_character: bool =False, new_character: str =" "):
         """
         Remove specified characters from the column names of a DataFrame.
 
@@ -127,7 +128,7 @@ class Cleaning(pd.DataFrame):
         dataframe = self.copy()
         dataframe = self.rename(columns=new_columns)
         return dataframe
-    def round_rows_value(self, cols=None, decimals=2):
+    def round_rows_value(self, cols=None, decimals: int =2):
         """
         Round the numerical values in specified columns of a DataFrame to a specified number of decimal places.
 
@@ -148,7 +149,7 @@ class Cleaning(pd.DataFrame):
         dataframe = self.copy()
         dataframe[numerical_cols] = self[numerical_cols].applymap(lambda x: round(x, decimals) if isinstance(x, (int, float)) else x)
         return dataframe
-    def remove_rows_character(self, cols=None, characters=[','], add_new_character=False, new_character=" "):
+    def remove_rows_character(self, cols=None, characters: Union[str, list]=[','], add_new_character: bool =False, new_character: str=" "):
         """
         Removes specified characters from the values in the specified columns of a DataFrame.
 
@@ -296,7 +297,7 @@ class Cleaning(pd.DataFrame):
         else:
             dataframe = self.ffill(subset=cols)
         return dataframe
-    def split_rows_string(self, col, new_cols, separator=",", delete_col=True, save_remain=True):
+    def split_rows_string(self, col, new_cols: str, separator: str =",", delete_col: bool =True, save_remain: bool=True):
         """
         Split the values in a specified column of a DataFrame into multiple columns based on a separator.
 
@@ -340,7 +341,7 @@ class Cleaning(pd.DataFrame):
         else:
             dataframe = self.bfill(subset=cols)
         return dataframe
-    def fill_rows_with_missing_values_mean(self, cols=None, decimals=2):
+    def fill_rows_with_missing_values_mean(self, cols=None, decimals: int=2):
         """
         Fills missing values in a DataFrame with the mean value of the respective column.
     

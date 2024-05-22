@@ -1,3 +1,4 @@
+# Import necessary libraries
 import pandas as pd
 import numpy as np
 from IPython.display import display
@@ -48,7 +49,7 @@ class Statistics(pd.DataFrame):
     - The `Statistics` class inherits all the fields from the `pd.DataFrame` class, which include the columns, index, and data of the DataFrame.
     """
 
-    def get_dtypes(self, cols=None, output=True):
+    def get_dtypes(self: pd.DataFrame, cols: pd.Series =None, output: bool =True) -> list:
         """
         Get the data types of the specified columns.
 
@@ -67,7 +68,7 @@ class Statistics(pd.DataFrame):
                 print(f"{col} dtype is {self[col].dtype.name}")
         dtypes = [self[col].dtype.name for col in cols]
         return dtypes
-    def get_cols(self):
+    def get_cols(self: pd.DataFrame) -> list:
         """
         Get the column names of the DataFrame.
 
@@ -79,7 +80,7 @@ class Statistics(pd.DataFrame):
         except Exception as e:
             print(f"Error occurred while accessing self.columns: {e}")
             return []
-    def get_cols_dtypes(self, cols=None, get_df=True):
+    def get_cols_dtypes(self: pd.DataFrame, cols: pd.Series =None, get_df: bool =True) -> dict | pd.DataFrame:
         """
         Returns the data types of the specified columns in a DataFrame.
 
@@ -108,7 +109,7 @@ class Statistics(pd.DataFrame):
             dataframe = pd.DataFrame(cols_info, columns=columns_name)
             return dataframe
         return cols_dtypes
-    def convert_python_type(min_value, max_value):
+    def convert_python_type(min_value: int, max_value: int) -> tuple[int, int] | tuple[float, float] | tuple[bool, bool]:
         """
         Convert the minimum and maximum values of a given type to the appropriate Python data type.
 
@@ -139,7 +140,7 @@ class Statistics(pd.DataFrame):
         else:
             return min_value, max_value
     
-    def get_best_dtypes(self, cols=None, convert=False, output=True, show_df=False):
+    def get_best_dtypes(self: pd.DataFrame, cols: pd.Series =None, convert: bool =False, output: bool =True, show_df: bool =False) -> pd.DataFrame:
         """
         Determines the best data type for each column in a DataFrame.
 
@@ -164,7 +165,7 @@ class Statistics(pd.DataFrame):
         if show_df:
             output = False
             dataframe = []
-            dataframe1 = Statistics.get_cols_dtypes(self, get_df=True)
+            dataframe1: pd.DataFrame = Statistics.get_cols_dtypes(self, get_df=True)
         for col in cols:
             try:
                 is_numeric = pd.api.types.is_numeric_dtype(self[col])
@@ -240,18 +241,15 @@ class Statistics(pd.DataFrame):
             dataframe = pd.DataFrame(dataframe, columns=["Column_Name", "Best_Dtype"])
             dataframe = dataframe1.merge(dataframe, how="inner", on="Column_Name")
             display(dataframe)
-            print(type(self))
-            from .file import PandasFile
-            return PandasFile(self)
+            return self
         elif convert:
-            from .file import PandasFile
-            return PandasFile(self)
+            return self
         elif show_df:
             dataframe1 = Statistics.get_cols_dtypes(self, get_df=True)
             dataframe = pd.DataFrame(dataframe, columns=["Column_Name", "Best_Dtype"])
             dataframe = dataframe1.merge(dataframe, how="inner", on="Column_Name")
             return dataframe
-    def get_memory_usage(self, cols=None, output=True, get_total=True, show_df=False, unit="kb", use_deep=True, get_dict=False):
+    def get_memory_usage(self: pd.DataFrame, cols: pd.Series=None, output: bool =True, get_total: bool =True, show_df: bool =False, unit: str ="kb", use_deep: bool=True, get_dict: bool =False):
         """
         Calculate the memory usage of each column in a DataFrame and provide options to display the results, calculate the total memory usage, and return the information as a DataFrame or dictionary.
 
@@ -278,11 +276,11 @@ class Statistics(pd.DataFrame):
         if get_total:
             total = 0
         if show_df:
-            dataframe = []
+            dataframe: pd.DataFrame = []
             output = False
         if get_dict:
             get_total = False
-            num_of_memory = {}
+            num_of_memory: dict = {}
             num_of_memory.update([("unit", unit)])
         conversion_factors = {
             "kb": 1024,
@@ -322,7 +320,7 @@ class Statistics(pd.DataFrame):
             return total
         if get_dict:
             return num_of_memory
-    def get_memory_usage_percentage(self, cols=None, output=True, unit="kb", get_total=True, show_df=False, use_deep=True, get_dict=False):
+    def get_memory_usage_percentage(self: pd.DataFrame, cols: pd.Series=None, output: bool =True, unit: str="kb", get_total:bool =True, show_df:bool =False, use_deep:bool =True, get_dict: bool=False):
         """
         Calculate the memory usage percentage of each column in a DataFrame.
 
@@ -345,11 +343,11 @@ class Statistics(pd.DataFrame):
         if get_total:
             total = 0
         if show_df:
-            dataframe = []
+            dataframe: pd.DataFrame = []
             output = False
         if get_dict:
             get_total = False
-            percentage_of_memory = {}
+            percentage_of_memory: dict = {}
             percentage_of_memory.update([("unit", unit)])
         for col in cols:
             total_usage = Statistics.get_memory_usage(self, output=False)
@@ -383,7 +381,7 @@ class Statistics(pd.DataFrame):
             if output:   
                 print(f"Total: {total} {unit}")
             return percentage_of_memory
-    def get_nulls_count(self, cols=None, output=True, show_df=False, get_total=True, get_dict=False):
+    def get_nulls_count(self: pd.DataFrame, cols: pd.Series=None, output=True, show_df: bool=False, get_total: bool=True, get_dict: bool=False):
         """
         Calculate the number of null values in each column of a DataFrame.
 
@@ -405,11 +403,11 @@ class Statistics(pd.DataFrame):
         if get_total:
             total = 0
         if show_df:
-            dataframe = [] 
+            dataframe: pd.DataFrame = []
             output = False
         if get_dict:
             get_total = False
-            num_of_nulls = {}
+            num_of_nulls: dict = {}
         for col in cols:
             value = self[col].isnull().sum() 
             if output:
@@ -439,7 +437,7 @@ class Statistics(pd.DataFrame):
         if get_dict:
             return num_of_nulls
 
-    def get_null_percentage(self, cols=None, output=True, show_df=False, get_total=True, get_dict=False):
+    def get_null_percentage(self: pd.DataFrame, cols:pd.Series =None, output: bool =True, show_df: bool =False, get_total: bool =True, get_dict: bool=False):
         """
         Calculate the percentage of null values in each column of a DataFrame.
 
@@ -459,13 +457,13 @@ class Statistics(pd.DataFrame):
         if cols is None:
             cols = self.columns
         if get_total:
-            total = 0
+            total: int = 0
         if show_df:
-            dataframe = [] 
+            dataframe: pd.DataFrame = []
             output = False
         if get_dict:
             get_total = False
-            percentage_of_nulls = {}
+            percentage_of_nulls: dict = {}
         for col in cols:
             value = round((Statistics.get_nulls_count(self, [col], False)/len(self[col])) * 100, 2)
             if output:
@@ -494,7 +492,7 @@ class Statistics(pd.DataFrame):
             return total
         elif get_dict:
             return percentage_of_nulls
-    def get_num_of_unique_values(self, cols=None, output=True, show_df=False):
+    def get_num_of_unique_values(self: pd.DataFrame, cols: pd.Series=None, output: bool =True, show_df: bool =False) -> pd.DataFrame | dict:
         """
         Calculate the number of unique values in specified columns of a DataFrame.
 
@@ -511,9 +509,9 @@ class Statistics(pd.DataFrame):
         if cols is None:
             cols = self.columns
         if show_df:
-            dataframe = []  
+            dataframe: pd.DataFrame = []  
             output = False
-        num_of_uniques = {}
+        num_of_uniques: dict = {}
         for col in cols:
             try:
                 num_unique_values = self[col].nunique()
@@ -531,7 +529,7 @@ class Statistics(pd.DataFrame):
             return dataframe
         else:
             return num_of_uniques
-    def get_max_values(self, cols=None, output=True, show_df=False):
+    def get_max_values(self: pd.DataFrame, cols: pd.Series =None, output: bool=True, show_df: bool =False):
         """
         Find the maximum values or the most common values in each column of a DataFrame.
 
@@ -546,7 +544,7 @@ class Statistics(pd.DataFrame):
         """
         if cols is None:
             cols = self.columns
-        max_values = {}
+        max_values: dict = {}
         for col in cols:
             try:
                 if not pd.api.types.is_categorical_dtype(self[col]) and not pd.api.types.is_bool_dtype(self[col]):
@@ -572,7 +570,7 @@ class Statistics(pd.DataFrame):
             return dataframe
         else:
             return max_values
-    def get_max_values_count(self, cols=None, output=True, show_df=False):
+    def get_max_values_count(self: pd.DataFrame, cols: pd.Series =None, output: bool =True, show_df: bool =False) -> pd.DataFrame | dict:
         """
         Returns the number of occurrences of the maximum value or the most common value in each column of a DataFrame.
 
@@ -586,7 +584,7 @@ class Statistics(pd.DataFrame):
         """
         if cols is None:
             cols = self.columns
-        max_values_count = {}
+        max_values_count: dict = {}
         for col in cols:
             try:
                 if not pd.api.types.is_categorical_dtype(self[col]) and not pd.api.types.is_bool_dtype(self[col]):
@@ -613,7 +611,7 @@ class Statistics(pd.DataFrame):
             return dataframe
         else:
             return max_values_count
-    def get_max_values_percentage(self, cols=None, output=True, show_df=False):
+    def get_max_values_percentage(self: pd.DataFrame, cols:pd.Series=None, output: bool =True, show_df: bool =False) -> pd.DataFrame | dict:
         """
         Calculates the percentage of the maximum value or the most common value in each column of a DataFrame.
 
@@ -631,7 +629,7 @@ class Statistics(pd.DataFrame):
         """
         if cols is None:
             cols = self.columns
-        max_values_percentage = {}
+        max_values_percentage: dict = {}
         for col in cols:
             try:
                 if not pd.api.types.is_categorical_dtype(self[col]) and not pd.api.types.is_bool_dtype(self[col]):
@@ -663,7 +661,7 @@ class Statistics(pd.DataFrame):
             return dataframe
         else:
             return max_values_percentage
-    def get_min_values(self, cols=None, output=True, show_df=False):
+    def get_min_values(self: pd.DataFrame, cols: pd.Series=None, output: bool=True, show_df: bool =False) -> pd.DataFrame | dict:
         """
         Retrieve the minimum values for specified columns in a DataFrame.
     
@@ -686,7 +684,7 @@ class Statistics(pd.DataFrame):
         """
         if cols is None:
             cols = self.columns
-        min_values = {}
+        min_values: dict = {}
         for col in cols:
             try:
                 if not pd.api.types.is_categorical_dtype(self[col]) and not pd.api.types.is_bool_dtype(self[col]):
@@ -713,7 +711,7 @@ class Statistics(pd.DataFrame):
             return dataframe
         else:
             return min_values
-    def get_min_values_count(self, cols=None, output=True, show_df=False):
+    def get_min_values_count(self: pd.DataFrame, cols: pd.Series=None, output: bool =True, show_df: bool =False) -> pd.DataFrame | dict:
         """
         Calculate the count of the minimum values or the count of the less common values in each column of a DataFrame.
 
@@ -731,7 +729,7 @@ class Statistics(pd.DataFrame):
         """
         if cols is None:
             cols = self.columns
-        min_values_count = {}
+        min_values_count: dict = {}
         for col in cols:
             try:
                 if not pd.api.types.is_categorical_dtype(self[col]) and not pd.api.types.is_bool_dtype(self[col]):
@@ -758,7 +756,7 @@ class Statistics(pd.DataFrame):
             return dataframe
         else:
             return min_values_count
-    def get_min_values_percentage(self, cols=None, output=True, show_df=False):
+    def get_min_values_percentage(self: pd.DataFrame, cols: pd.Series=None, output: bool =True, show_df: bool =False) -> pd.DataFrame | dict:
         """
         Calculates the percentage of the minimum value or the percentage of the less common value in each column of a DataFrame.
 
@@ -774,7 +772,7 @@ class Statistics(pd.DataFrame):
         """
         if cols is None:
             cols = self.columns
-        min_values_percentage = {}
+        min_values_percentage: dict = {}
         for col in cols:
             try:
                 if not pd.api.types.is_categorical_dtype(self[col]) and not pd.api.types.is_bool_dtype(self[col]):
@@ -806,7 +804,7 @@ class Statistics(pd.DataFrame):
             return dataframe
         else:
             return min_values_percentage
-    def get_dataframe_mem_insight(self, transpose=False):
+    def get_dataframe_mem_insight(self: pd.DataFrame, transpose: bool =False) -> pd.DataFrame:
         """
         Generate memory insights for each column in a given dataframe.
 
@@ -817,7 +815,7 @@ class Statistics(pd.DataFrame):
         Returns:
             pandas.DataFrame: A dataframe containing information such as column name, data type, recommended data type, memory usage, number of missing values, percentage of missing values, and number of distinct values.
         """
-        dataframe = []
+        dataframe: pd.DataFrame = []
         for col in self.columns:
             col_info = [
                 col,
@@ -847,7 +845,7 @@ class Statistics(pd.DataFrame):
             dataframe.columns = dataframe.iloc[0]
             dataframe = dataframe[1:]
         return dataframe.head(len(self.columns))
-    def get_dataframe_values_insight(self, transpose=False):
+    def get_dataframe_values_insight(self: pd.DataFrame, transpose: bool =False) -> pd.DataFrame:
         """
         Generates insights about the values in each column of a given dataframe.
 
@@ -858,7 +856,7 @@ class Statistics(pd.DataFrame):
         Returns:
             pandas.DataFrame: A dataframe containing insights about the values in each column of the input dataframe. The number of rows in the resulting dataframe is equal to the number of columns in the input dataframe.
         """
-        dataframe = []
+        dataframe: pd.DataFrame = []
         for col in self.columns:
             col_info = [
                 col,
@@ -894,7 +892,7 @@ class Statistics(pd.DataFrame):
             dataframe.columns = dataframe.iloc[0]
             dataframe = dataframe[1:]
         return dataframe.head(len(self.columns))
-    def find(self, conditions, AND=True, OR=False):
+    def find(self: pd.DataFrame, conditions: list, AND: bool=True, OR: bool =False) -> pd.DataFrame:
         """
         Filter the data in a DataFrame based on specified conditions using logical operators (AND or OR).
 
@@ -926,7 +924,7 @@ class Statistics(pd.DataFrame):
             raise ValueError("Either AND or OR must be True.")
 
         return self[combined_condition]
-    def find_replace(self, conditions, replace_with, AND=True, OR=False):
+    def find_replace(self: pd.DataFrame, conditions: list, replace_with: tuple, AND: bool =True, OR: bool =False) -> pd.DataFrame:
         """
         Find rows in a DataFrame that meet certain conditions and replace values in a specified column with a new value.
 
@@ -942,7 +940,7 @@ class Statistics(pd.DataFrame):
         new_dataset = Statistics.find(self, conditions, AND, OR)
         self.loc[new_dataset.index, replace_with[0]] = replace_with[1]
         return self
-    def find_delete(self, conditions, AND=True, OR=False):
+    def find_delete(self: pd.DataFrame, conditions: list, AND: bool =True, OR: bool =False) -> pd.DataFrame:
         """
         Find rows in the DataFrame that meet certain conditions, delete those rows from the DataFrame, and return the modified DataFrame.
 

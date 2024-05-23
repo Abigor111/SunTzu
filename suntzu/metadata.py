@@ -1,5 +1,5 @@
 import pyarrow as pa
-import jsonschema
+import jsonschema 
 import pyarrow.parquet as pq
 import json
 from jsonschema.exceptions import ValidationError
@@ -374,6 +374,7 @@ class netCDF_Metadata(xr.Dataset):
         except Exception as e:
             raise ValueError(f"Error inserting netCDF metadata: {str(e)}")
 class ParquetMetadata(pd.DataFrame):
+    from typing import Any, Optional, List
     """
     The `ParquetMetadata` class is a subclass of `pd.DataFrame` that provides methods for reading and inserting metadata into Parquet files. It allows users to read the metadata of a Parquet file and print the attributes of each column. Users can also insert metadata into a Parquet file using various methods such as providing metadata through user input, a dictionary, or a JSON file.
 
@@ -391,7 +392,7 @@ class ParquetMetadata(pd.DataFrame):
     Fields:
     - No significant fields.
     """
-    def read_parquet_metadata(self, attributes=None, cols=None):
+    def read_parquet_metadata(self, attributes: Optional[List[str]] = None, cols: Optional[List[str]] = None) -> None:        
         """
         Reads the metadata of a Parquet file and prints the attributes of each column.
 

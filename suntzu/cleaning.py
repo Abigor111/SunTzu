@@ -38,7 +38,7 @@ class Cleaning(pd.DataFrame):
     - fill_rows_with_missing_values_max(cols=None): Fills missing values in the DataFrame with the maximum value of each column.
     - fill_rows_with_missing_values_min(cols=None): Fills missing values in the DataFrame with the minimum value of each column.
     """
-    def capitalize_cols_name(self, cols = None):
+    def capitalize_cols_name(self: pd.DataFrame, cols: pd.Series = None):
         """
         Capitalizes the column names of the DataFrame.
 
@@ -57,7 +57,7 @@ class Cleaning(pd.DataFrame):
         dataframe = self.copy()
         dataframe = self.rename(columns=dict(zip(cols, map(str.capitalize, cols))))
         return dataframe
-    def lower_cols_name(self, cols = None):
+    def lower_cols_name(self: pd.DataFrame, cols:pd.Series = None) -> pd.DataFrame:
         """
         Converts the column names of the DataFrame to lowercase.
 
@@ -76,7 +76,7 @@ class Cleaning(pd.DataFrame):
         dataframe = self.copy()
         dataframe = self.rename(columns=dict(zip(cols, map(str.lower, cols))))
         return dataframe
-    def upper_cols_name(self, cols=None):
+    def upper_cols_name(self: pd.DataFrame, cols: pd.Series=None)  -> pd.DataFrame:
         """
         Convert the column names of a DataFrame to uppercase.
 
@@ -98,7 +98,7 @@ class Cleaning(pd.DataFrame):
         dataframe = self.copy()
         dataframe = self.rename(columns=dict(zip(cols, map(str.upper, cols))))
         return dataframe
-    def remove_cols_character(self, cols=None, characters: Union[str, list] =['_'], add_new_character: bool =False, new_character: str =" "):
+    def remove_cols_character(self: pd.DataFrame, cols: pd.Series=None, characters: str | list =['_'], add_new_character: bool =False, new_character: str =" ") -> pd.DataFrame:
         """
         Remove specified characters from the column names of a DataFrame.
 
@@ -128,7 +128,7 @@ class Cleaning(pd.DataFrame):
         dataframe = self.copy()
         dataframe = self.rename(columns=new_columns)
         return dataframe
-    def round_rows_value(self, cols=None, decimals: int =2):
+    def round_rows_value(self: pd.DataFrame, cols: pd.Series=None, decimals: int =2) -> pd.DataFrame:
         """
         Round the numerical values in specified columns of a DataFrame to a specified number of decimal places.
 
@@ -149,7 +149,7 @@ class Cleaning(pd.DataFrame):
         dataframe = self.copy()
         dataframe[numerical_cols] = self[numerical_cols].applymap(lambda x: round(x, decimals) if isinstance(x, (int, float)) else x)
         return dataframe
-    def remove_rows_character(self, cols=None, characters: Union[str, list]=[','], add_new_character: bool =False, new_character: str=" "):
+    def remove_rows_character(self: pd.DataFrame, cols:pd.Series=None, characters: str | list=[','], add_new_character: bool =False, new_character: str=" ") -> pd.DataFrame:
         """
         Removes specified characters from the values in the specified columns of a DataFrame.
 
@@ -180,7 +180,7 @@ class Cleaning(pd.DataFrame):
                                     new_value = new_value[:idx_char] + new_character + new_value[idx_char+1:] if add_new_character else new_value[:idx_char] + new_value[idx_char+1:]
                         dataframe.at[idx, col] = new_value    
         return dataframe
-    def capitalize_rows_string(self, cols = None):
+    def capitalize_rows_string(self: pd.DataFrame, cols: pd.Series = None)  -> pd.DataFrame:
         """
         Capitalizes the string values in the specified columns.
 
@@ -199,7 +199,7 @@ class Cleaning(pd.DataFrame):
         dataframe = self.copy()
         dataframe[cols] = self[cols].applymap(lambda x: x.capitalize() if isinstance(x, str) else x)
         return dataframe
-    def lower_rows_string(self, cols=None):
+    def lower_rows_string(self: pd.DataFrame, cols: pd.Series=None) -> pd.DataFrame:
         """
         Convert the string values in specified columns of a DataFrame to lowercase.
 
@@ -218,7 +218,7 @@ class Cleaning(pd.DataFrame):
         dataframe = self.copy()
         dataframe[cols] = self[cols].applymap(lambda x: x.lower() if isinstance(x, str) else x)
         return dataframe
-    def upper_rows_string(self, cols=None):
+    def upper_rows_string(self: pd.DataFrame, cols: pd.Series=None)  -> pd.DataFrame:
         """
         Convert the string values in specified columns of a DataFrame to uppercase.
 
@@ -237,7 +237,7 @@ class Cleaning(pd.DataFrame):
         dataframe = self.copy()
         dataframe[cols] = self[cols].applymap(lambda x: x.upper() if isinstance(x, str) else x)
         return dataframe
-    def remove_rows_with_missing_values(self, cols=None):
+    def remove_rows_with_missing_values(self: pd.DataFrame, cols: pd.Series=None) -> pd.DataFrame:
         """
         Remove rows with missing values from the DataFrame.
 
@@ -253,7 +253,7 @@ class Cleaning(pd.DataFrame):
         else:
             dataframe = self.dropna(subset=cols)
         return dataframe
-    def interpolate_rows_with_missing_values(self, cols=None):
+    def interpolate_rows_with_missing_values(self: pd.DataFrame, cols: pd.Series=None) -> pd.DataFrame:
         """
         Interpolates missing values in a DataFrame by filling them with interpolated values.
 
@@ -274,14 +274,14 @@ class Cleaning(pd.DataFrame):
             if missing_cols:
                 raise ValueError(f"The following columns are not present in the DataFrame: {missing_cols}")
         for col in cols:
-            dtype = Statistics.get_dtypes(self, [col], False)
+            dtype: list = Statistics.get_dtypes(self, [col], False)
             dtype = str(dtype[0])     
             if dtype in ["categorical", "bool", "object"]:
                 dataframe[col] = self[col].fillna(self[col].mode()[0])
             else:
                 dataframe[col] = self[col].interpolate()
         return dataframe
-    def foward_fill_rows_with_missing_values(self, cols = None):
+    def foward_fill_rows_with_missing_values(self: pd.DataFrame, cols: pd.Series = None)  -> pd.DataFrame:
         """
         Forward fill missing values in a DataFrame by filling the missing values with the last known non-null value in the column.
 
@@ -297,7 +297,7 @@ class Cleaning(pd.DataFrame):
         else:
             dataframe = self.ffill(subset=cols)
         return dataframe
-    def split_rows_string(self, col, new_cols: str, separator: str =",", delete_col: bool =True, save_remain: bool=True):
+    def split_rows_string(self: pd.DataFrame, col: pd.Series, new_cols: str, separator: str =",", delete_col: bool =True, save_remain: bool=True)  -> pd.DataFrame:
         """
         Split the values in a specified column of a DataFrame into multiple columns based on a separator.
 
@@ -325,7 +325,7 @@ class Cleaning(pd.DataFrame):
         else:
             dataframe[col] = split_result[len(new_cols)]
         return dataframe
-    def backward_fill_rows_with_missing_values(self, cols = None):
+    def backward_fill_rows_with_missing_values(self: pd.DataFrame, cols: pd.Series = None) -> pd.DataFrame:
         """
         Fill missing values in a DataFrame by backward filling them with the last valid value in each column.
 
@@ -341,7 +341,7 @@ class Cleaning(pd.DataFrame):
         else:
             dataframe = self.bfill(subset=cols)
         return dataframe
-    def fill_rows_with_missing_values_mean(self, cols=None, decimals: int=2):
+    def fill_rows_with_missing_values_mean(self: pd.DataFrame, cols: pd.Series=None, decimals: int=2) -> pd.DataFrame:
         """
         Fills missing values in a DataFrame with the mean value of the respective column.
     
@@ -370,7 +370,7 @@ class Cleaning(pd.DataFrame):
             else:
                 dataframe[col] = self[col].fillna(round(self[col].mean(), decimals))
         return dataframe
-    def fill_rows_with_missing_values_max(self, cols = None):
+    def fill_rows_with_missing_values_max(self: pd.DataFrame, cols: pd.Series = None) -> pd.DataFrame:
         """
         Fills missing values in a DataFrame with the maximum value of each column.
 
@@ -398,7 +398,7 @@ class Cleaning(pd.DataFrame):
             else:
                 dataframe[col] = self[col].fillna(self[col].max())
         return dataframe
-    def fill_rows_with_missing_values_min(self, cols=None):
+    def fill_rows_with_missing_values_min(self: pd.DataFrame, cols: pd.Series=None)  -> pd.DataFrame:
         """
         Fills missing values in a DataFrame with the minimum value of each column.
         If a column has a categorical, boolean, or object data type, the missing values are filled with the most frequent value in that column.

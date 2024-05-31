@@ -5,4 +5,3 @@ xarray
 pyarrow
 numpy
 jsonschema
-json

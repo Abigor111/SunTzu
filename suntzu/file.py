@@ -49,7 +49,7 @@ def read_file(path: str, **kwargs) -> xr.Dataset | pd.DataFrame:
 
     Args:
         path (str): The path to the file to be read.
-        **kwargs: Additional options to customize the file reading process.
+        kwargs: Additional options to customize the file reading process.
 
     Returns:
         File object or list of tables: The data from the file in a structured format, except for HTML files where a list of tables is returned.

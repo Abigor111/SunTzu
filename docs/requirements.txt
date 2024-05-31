@@ -1,2 +1,8 @@
 sphinx
 sphinx-rtd-theme
+pandas
+xarray
+pyarrow
+numpy
+jsonschema
+json

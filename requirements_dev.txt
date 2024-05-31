@@ -1,7 +1,0 @@
-pandas
-xarray
-pyarrow
-numpy
-jsonschema
-slack_sdk
-IPython

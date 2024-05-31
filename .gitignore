@@ -138,3 +138,4 @@ tox.ini
 .gitattributes
 tests
 .github
+requirements_dev.txt

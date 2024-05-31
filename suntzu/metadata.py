@@ -17,13 +17,13 @@ class netCDF_Metadata(xr.Dataset):
     - insert_netCDF_metadata_input(variables=None, attributes=None, new_file=False, filename="new_file.nc"): Prompts the user to input metadata for specified variables in a NetCDF file.
     - insert_netCDF_metadata_dict(dictionary, variables=None, new_file=False, filename="new_file.nc"): Inserts metadata into a NetCDF file using a dictionary.
     - insert_netCDF_metadata_json(json_file, new_file=False, filename="new_file.nc"): Inserts metadata from a JSON file into a NetCDF file.
-    - insert_netCDF_metadata(via="input", **kwargs): Inserts metadata into the NetCDF file using the specified method.
+    - insert_netCDF_metadata(via="input", kwargs): Inserts metadata into the NetCDF file using the specified method.
     - get_attrs(): Returns the global metadata attributes of the dataset.
     - read_global_metadata(attributes=None): Prints the global metadata attributes of the dataset.
     - insert_netCDF_global_metadata_input(attributes=None, new_file=False, filename="new_file.nc"): Inserts global metadata into a NetCDF file using user input.
     - insert_netCDF_global_metadata_dict(dictionary, new_file=False, filename="new_file.nc"): Inserts global metadata into a NetCDF file using a dictionary.
     - insert_netCDF_global_metadata_json(json_file, new_file=False, filename="new_file.nc"): Inserts global metadata from a JSON file into a NetCDF file.
-    - insert_netCDF_global_metadata(via="input", **kwargs): Inserts global metadata into a NetCDF file using the specified method.
+    - insert_netCDF_global_metadata(via="input", kwargs): Inserts global metadata into a NetCDF file using the specified method.
     """
     def get_file_variables(self: xr.Dataset) -> list:
         """
@@ -354,7 +354,7 @@ class netCDF_Metadata(xr.Dataset):
 
         Parameters:
         via (str, optional): The method of providing metadata. Can be "dict", "json", or "input". Defaults to "input".
-        **kwargs: Additional keyword arguments for the specific method.
+        kwargs: Additional keyword arguments for the specific method.
 
         Raises:
         ValueError: If the provided 'via' parameter is not valid or if there is an error inserting the metadata.
@@ -620,7 +620,7 @@ class ParquetMetadata(pd.DataFrame):
 
         Parameters:
         - via (str): The method of providing metadata. It can be "dict", "json", or "input".
-        - **kwargs: Additional keyword arguments for the specific method.
+        - kwargs: Additional keyword arguments for the specific method.
 
         Raises:
         - ValueError: If `via` is not a valid metadata input or if an error occurs during metadata insertion.

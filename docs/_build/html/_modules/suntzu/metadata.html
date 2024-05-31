@@ -1,0 +1,801 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>suntzu.metadata &mdash; SunTzu 0.2.2 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=19f00094" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../../_static/documentation_options.js?v=000c92bf"></script>
+        <script src="../../_static/doctools.js?v=888ff710"></script>
+        <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            SunTzu
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../suntzu.html">suntzu package</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">SunTzu</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">suntzu.metadata</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for suntzu.metadata</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">pyarrow</span> <span class="k">as</span> <span class="nn">pa</span>
+<span class="kn">import</span> <span class="nn">jsonschema</span>
+<span class="kn">import</span> <span class="nn">pyarrow.parquet</span> <span class="k">as</span> <span class="nn">pq</span>
+<span class="kn">import</span> <span class="nn">json</span>
+<span class="kn">from</span> <span class="nn">jsonschema.exceptions</span> <span class="kn">import</span> <span class="n">ValidationError</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">import</span> <span class="nn">xarray</span> <span class="k">as</span> <span class="nn">xr</span>
+<span class="kn">from</span> <span class="nn">.statistics</span> <span class="kn">import</span> <span class="n">Statistics</span>
+<div class="viewcode-block" id="netCDF_Metadata">
+<a class="viewcode-back" href="../../suntzu.html#suntzu.metadata.netCDF_Metadata">[docs]</a>
+<span class="k">class</span> <span class="nc">netCDF_Metadata</span><span class="p">(</span><span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A subclass of `xr.Dataset` that provides methods for reading and inserting metadata into a netCDF file. It also includes methods for reading and inserting global metadata attributes.</span>
+
+<span class="sd">    Methods:</span>
+<span class="sd">    - get_file_variables(): Returns a list of variables in the NetCDF file.</span>
+<span class="sd">    - read_netCDF_metadata(variables=None, attributes=None): Reads and prints metadata information from a NetCDF file.</span>
+<span class="sd">    - insert_netCDF_metadata_input(variables=None, attributes=None, new_file=False, filename=&quot;new_file.nc&quot;): Prompts the user to input metadata for specified variables in a NetCDF file.</span>
+<span class="sd">    - insert_netCDF_metadata_dict(dictionary, variables=None, new_file=False, filename=&quot;new_file.nc&quot;): Inserts metadata into a NetCDF file using a dictionary.</span>
+<span class="sd">    - insert_netCDF_metadata_json(json_file, new_file=False, filename=&quot;new_file.nc&quot;): Inserts metadata from a JSON file into a NetCDF file.</span>
+<span class="sd">    - insert_netCDF_metadata(via=&quot;input&quot;, **kwargs): Inserts metadata into the NetCDF file using the specified method.</span>
+<span class="sd">    - get_attrs(): Returns the global metadata attributes of the dataset.</span>
+<span class="sd">    - read_global_metadata(attributes=None): Prints the global metadata attributes of the dataset.</span>
+<span class="sd">    - insert_netCDF_global_metadata_input(attributes=None, new_file=False, filename=&quot;new_file.nc&quot;): Inserts global metadata into a NetCDF file using user input.</span>
+<span class="sd">    - insert_netCDF_global_metadata_dict(dictionary, new_file=False, filename=&quot;new_file.nc&quot;): Inserts global metadata into a NetCDF file using a dictionary.</span>
+<span class="sd">    - insert_netCDF_global_metadata_json(json_file, new_file=False, filename=&quot;new_file.nc&quot;): Inserts global metadata from a JSON file into a NetCDF file.</span>
+<span class="sd">    - insert_netCDF_global_metadata(via=&quot;input&quot;, **kwargs): Inserts global metadata into a NetCDF file using the specified method.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+<div class="viewcode-block" id="netCDF_Metadata.get_file_variables">
+<a class="viewcode-back" href="../../suntzu.html#suntzu.metadata.netCDF_Metadata.get_file_variables">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_file_variables</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get the variables of the file.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            list: A list of variables in the file.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">variables</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">variables</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+        <span class="k">return</span> <span class="n">variables</span></div>
+
+<div class="viewcode-block" id="netCDF_Metadata.read_netCDF_metadata">
+<a class="viewcode-back" href="../../suntzu.html#suntzu.metadata.netCDF_Metadata.read_netCDF_metadata">[docs]</a>
+    <span class="k">def</span> <span class="nf">read_netCDF_metadata</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">variables</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">attributes</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Read and print metadata information from a NetCDF file.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            variables (list, optional): A list of variable names to retrieve metadata for. If not specified, all variables in the NetCDF file will be retrieved.</span>
+<span class="sd">            attributes (list, optional): A list of attribute names to retrieve for each variable. If not specified, all attributes for each variable will be retrieved.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            None</span>
+
+<span class="sd">        Example Usage:</span>
+<span class="sd">            # Read metadata for all variables in the NetCDF file</span>
+<span class="sd">            read_netCDF_metadata()</span>
+
+<span class="sd">            # Read metadata for specific variables in the NetCDF file</span>
+<span class="sd">            read_netCDF_metadata(variables=[&#39;temperature&#39;, &#39;humidity&#39;])</span>
+
+<span class="sd">            # Read metadata for specific attributes of all variables in the NetCDF file</span>
+<span class="sd">            read_netCDF_metadata(attributes=[&#39;units&#39;, &#39;long_name&#39;])</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">def</span> <span class="nf">read_variable_metadata</span><span class="p">(</span><span class="n">var_name</span><span class="p">,</span> <span class="n">var</span><span class="p">):</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Variable: </span><span class="si">{</span><span class="n">var_name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">var</span><span class="o">.</span><span class="n">attrs</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">var</span><span class="o">.</span><span class="n">values</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;    Values: </span><span class="si">{</span><span class="n">var</span><span class="o">.</span><span class="n">values</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;No values were found&quot;</span><span class="p">)</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;    No attributes were found for this variable.&quot;</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;    Values: </span><span class="si">{</span><span class="n">var</span><span class="o">.</span><span class="n">values</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;    Attributes:&quot;</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">var</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                    <span class="k">if</span> <span class="n">attributes</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">attributes</span><span class="p">:</span>
+                        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;     </span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">value</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">variables</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">variables</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">variables</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+        <span class="k">for</span> <span class="n">var_name</span> <span class="ow">in</span> <span class="n">variables</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">coord_var</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">coords</span><span class="p">[</span><span class="n">var_name</span><span class="p">]</span>
+                <span class="n">read_variable_metadata</span><span class="p">(</span><span class="n">var_name</span><span class="p">,</span> <span class="n">coord_var</span><span class="p">)</span>
+            <span class="k">except</span> <span class="p">(</span><span class="ne">KeyError</span><span class="p">,</span> <span class="ne">AttributeError</span><span class="p">)</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Error occurred while retrieving metadata for variable </span><span class="si">{</span><span class="n">var_name</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="netCDF_Metadata.insert_netCDF_metadata_input">
+<a class="viewcode-back" href="../../suntzu.html#suntzu.metadata.netCDF_Metadata.insert_netCDF_metadata_input">[docs]</a>
+    <span class="k">def</span> <span class="nf">insert_netCDF_metadata_input</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">variables</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">attributes</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">new_file</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="s2">&quot;new_file.nc&quot;</span><span class="p">,):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This function prompts the user to input metadata for the specified variables in a netCDF file.</span>
+<span class="sd">        </span>
+<span class="sd">        Parameters:</span>
+<span class="sd">        - filename (str): Name of the netCDF file.</span>
+<span class="sd">        - variables (list): List of variable names. If None, all coordinate variables are used.</span>
+<span class="sd">        - attributes (list): List of attribute names. If None, default attributes are used.</span>
+<span class="sd">        - new_file (bool): If True, a new netCDF file is created. If False, the existing file is used.</span>
+<span class="sd">        </span>
+<span class="sd">        Raises:</span>
+<span class="sd">        - KeyError: If a variable was not found.</span>
+<span class="sd">        - FileExistsError: If the specified file already exists.</span>
+<span class="sd">        - ValueError: If the filename is invalid.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        
+        <span class="c1"># Define default attributes if not provided</span>
+        <span class="n">default_attributes</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="s2">&quot;Units&quot;</span><span class="p">,</span> <span class="s2">&quot;Long_Name&quot;</span><span class="p">,</span> <span class="s2">&quot;Standard_Name/Short_Name&quot;</span><span class="p">,</span> 
+            <span class="s2">&quot;Valid_Min&quot;</span><span class="p">,</span> <span class="s2">&quot;Valid_Max&quot;</span><span class="p">,</span> <span class="s2">&quot;Missing_Value&quot;</span><span class="p">,</span> 
+            <span class="s2">&quot;Fill_Value&quot;</span><span class="p">,</span> <span class="s2">&quot;Scale_Factor&quot;</span><span class="p">,</span> <span class="s2">&quot;Add_Offset&quot;</span><span class="p">,</span> 
+            <span class="s2">&quot;Coordinates&quot;</span><span class="p">,</span> <span class="s2">&quot;Axis&quot;</span><span class="p">,</span> <span class="s2">&quot;Description&quot;</span>
+        <span class="p">]</span>
+        <span class="k">if</span> <span class="n">attributes</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">attributes</span> <span class="o">=</span> <span class="n">default_attributes</span>
+
+        <span class="k">if</span> <span class="n">variables</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">variables</span> <span class="o">=</span> <span class="n">Statistics</span><span class="o">.</span><span class="n">get_file_variables</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">coord_name</span> <span class="ow">in</span> <span class="n">variables</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">attribute</span> <span class="ow">in</span> <span class="n">attributes</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="p">[</span><span class="n">coord_name</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="n">attribute</span><span class="p">]</span> <span class="o">=</span> <span class="nb">input</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">coord_name</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">attribute</span><span class="si">}</span><span class="s2"> - Enter value: &quot;</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">KeyError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Variable </span><span class="si">{</span><span class="n">coord_name</span><span class="si">}</span><span class="s2"> not found.&quot;</span><span class="p">)</span> <span class="kn">from</span> <span class="nn">e</span>
+        <span class="kn">from</span> <span class="nn">.file</span> <span class="kn">import</span> <span class="n">File</span>
+        <span class="k">if</span> <span class="n">new_file</span><span class="p">:</span>
+            <span class="n">File</span><span class="o">.</span><span class="n">export_to_file</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">filename</span><span class="p">)</span>
+        <span class="n">netCDF_Metadata</span><span class="o">.</span><span class="n">read_netCDF_metadata</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="netCDF_Metadata.insert_netCDF_metadata_dict">
+<a class="viewcode-back" href="../../suntzu.html#suntzu.metadata.netCDF_Metadata.insert_netCDF_metadata_dict">[docs]</a>
+    <span class="k">def</span> <span class="nf">insert_netCDF_metadata_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dictionary</span><span class="p">,</span> <span class="n">variables</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">new_file</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="s2">&quot;new_file.nc&quot;</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Insert metadata into a netCDF file using a dictionary.</span>
+
+<span class="sd">        Parameters:</span>
+<span class="sd">        - self: The netCDF object.</span>
+<span class="sd">        - dictionary: A dictionary containing the metadata to be inserted.</span>
+<span class="sd">        - filename: The name of the netCDF file to be created or modified.</span>
+<span class="sd">        - variables: A list of variables to insert the metadata into. If None, all variables will be used.</span>
+<span class="sd">        - new_file: If True, a new file will be created. If False, the metadata will be inserted into an existing file.</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">        - ValueError: If dictionary is None.</span>
+<span class="sd">        - AttributeError: If dictionary is not a dictionary.</span>
+<span class="sd">        - FileExistsError: If the specified file already exists.</span>
+<span class="sd">        - ValueError: If the filename is invalid.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">        - None</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">dictionary</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Please provide a dictionary.&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">variables</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">variables</span> <span class="o">=</span> <span class="n">Statistics</span><span class="o">.</span><span class="n">get_file_variables</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">dictionary</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">var</span> <span class="ow">in</span> <span class="n">variables</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">dictionary</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                    <span class="bp">self</span><span class="p">[</span><span class="n">var</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">AttributeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">dictionary</span><span class="si">}</span><span class="s2"> is not a dictionary.&quot;</span><span class="p">)</span>
+        <span class="kn">from</span> <span class="nn">.file</span> <span class="kn">import</span> <span class="n">File</span>
+        <span class="k">if</span> <span class="n">new_file</span><span class="p">:</span>
+            <span class="n">File</span><span class="o">.</span><span class="n">export_to_file</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">filename</span><span class="p">)</span>
+        <span class="n">netCDF_Metadata</span><span class="o">.</span><span class="n">read_netCDF_metadata</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="netCDF_Metadata.insert_netCDF_metadata_json">
+<a class="viewcode-back" href="../../suntzu.html#suntzu.metadata.netCDF_Metadata.insert_netCDF_metadata_json">[docs]</a>
+    <span class="k">def</span> <span class="nf">insert_netCDF_metadata_json</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">json_file</span><span class="p">,</span> <span class="n">new_file</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="s2">&quot;new_file.nc&quot;</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Inserts metadata from a JSON file into a netCDF file.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            self: The instance of the class that the function belongs to.</span>
+<span class="sd">            json_file (str): The path to the JSON file containing the metadata.</span>
+<span class="sd">            new_file (bool, optional): A boolean flag indicating whether a new netCDF file should be created. Defaults to False.</span>
+<span class="sd">            filename (str, optional): The name of the new netCDF file. Defaults to &quot;new_file.nc&quot;.</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            FileNotFoundError: If the specified filename already exists.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            None: The function modifies the attributes of the netCDF file directly.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">schema</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;object&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;patternProperties&quot;</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s2">&quot;.*&quot;</span><span class="p">:</span> <span class="p">{</span>
+                    <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;object&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;patternProperties&quot;</span><span class="p">:</span> <span class="p">{</span>
+                        <span class="s2">&quot;.*&quot;</span><span class="p">:</span> <span class="p">{</span>
+                            <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;string&quot;</span><span class="p">,</span>
+                        <span class="p">}</span>
+                    <span class="p">}</span>
+                <span class="p">},</span>
+                <span class="s2">&quot;additionalProperties&quot;</span><span class="p">:</span> <span class="kc">False</span>
+                <span class="p">}</span>   
+            <span class="p">}</span>   
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">json_file</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">file</span><span class="p">:</span>
+                <span class="n">metadata</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">file</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">IOError</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">IOError</span><span class="p">(</span><span class="s2">&quot;Error opening JSON file. Please check if the file exists or if there are any permission issues.&quot;</span><span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="c1"># Validate JSON against schema</span>
+            <span class="n">jsonschema</span><span class="o">.</span><span class="n">validate</span><span class="p">(</span><span class="n">instance</span><span class="o">=</span><span class="n">metadata</span><span class="p">,</span> <span class="n">schema</span><span class="o">=</span><span class="n">schema</span><span class="p">)</span>
+        <span class="k">except</span> <span class="n">ValidationError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">ValidationError</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">))</span>
+        <span class="k">for</span> <span class="n">var</span><span class="p">,</span> <span class="n">attributes</span> <span class="ow">in</span> <span class="n">metadata</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">for</span> <span class="n">attr</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">attributes</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="bp">self</span><span class="p">[</span><span class="n">var</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="n">attr</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+        <span class="kn">from</span> <span class="nn">.file</span> <span class="kn">import</span> <span class="n">File</span>   
+        <span class="k">if</span> <span class="n">new_file</span><span class="p">:</span>
+            <span class="n">File</span><span class="o">.</span><span class="n">export_to_file</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">filename</span><span class="p">)</span>
+        <span class="n">netCDF_Metadata</span><span class="o">.</span><span class="n">read_netCDF_metadata</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="netCDF_Metadata.insert_netCDF_metadata">
+<a class="viewcode-back" href="../../suntzu.html#suntzu.metadata.netCDF_Metadata.insert_netCDF_metadata">[docs]</a>
+    <span class="k">def</span> <span class="nf">insert_netCDF_metadata</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">via</span><span class="o">=</span><span class="s2">&quot;input&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Insert metadata into the netCDF file.</span>
+
+<span class="sd">        Parameters:</span>
+<span class="sd">            via (str, optional): The method of providing metadata. Can be &quot;dict&quot;, &quot;json&quot;, or &quot;input&quot;. Defaults to &quot;input&quot;.</span>
+<span class="sd">            **kwargs: Additional keyword arguments for the specific method.</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            ValueError: If `via` is not a valid metadata input.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">via_lower</span> <span class="o">=</span> <span class="n">via</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">via_lower</span> <span class="o">==</span> <span class="s2">&quot;dict&quot;</span><span class="p">:</span>
+                <span class="n">netCDF_Metadata</span><span class="o">.</span><span class="n">insert_netCDF_metadata_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="n">via_lower</span> <span class="o">==</span> <span class="s2">&quot;json&quot;</span><span class="p">:</span>
+                <span class="n">netCDF_Metadata</span><span class="o">.</span><span class="n">insert_netCDF_metadata_json</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="n">via_lower</span> <span class="o">==</span> <span class="s2">&quot;input&quot;</span><span class="p">:</span>
+                <span class="n">netCDF_Metadata</span><span class="o">.</span><span class="n">insert_netCDF_metadata_input</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">via</span><span class="si">}</span><span class="s2"> is not a valid metadata input.&quot;</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Error inserting netCDF metadata: </span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="netCDF_Metadata.get_attrs">
+<a class="viewcode-back" href="../../suntzu.html#suntzu.metadata.netCDF_Metadata.get_attrs">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_attrs</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">attrs</span></div>
+
+<div class="viewcode-block" id="netCDF_Metadata.read_global_metadata">
+<a class="viewcode-back" href="../../suntzu.html#suntzu.metadata.netCDF_Metadata.read_global_metadata">[docs]</a>
+    <span class="k">def</span> <span class="nf">read_global_metadata</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attributes</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Print the global metadata attributes of the dataset.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            attributes (list): List of attribute names to print. If None, all attributes will be printed.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">attrs</span> <span class="o">=</span> <span class="n">netCDF_Metadata</span><span class="o">.</span><span class="n">get_attrs</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">attrs</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;No Global Attributes were found.&quot;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">attributes</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">attr_name</span><span class="p">,</span> <span class="n">attr_value</span> <span class="ow">in</span> <span class="n">attrs</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="n">attr_name</span><span class="p">,</span> <span class="s2">&quot;:&quot;</span><span class="p">,</span> <span class="n">attr_value</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">attr_name</span><span class="p">,</span> <span class="n">attr_value</span> <span class="ow">in</span> <span class="n">attrs</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                    <span class="k">if</span> <span class="n">attr_name</span> <span class="ow">in</span> <span class="n">attributes</span><span class="p">:</span>
+                        <span class="nb">print</span><span class="p">(</span><span class="n">attr_name</span><span class="p">,</span> <span class="s2">&quot;:&quot;</span><span class="p">,</span> <span class="n">attr_value</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="netCDF_Metadata.insert_netCDF_global_metadata_input">
+<a class="viewcode-back" href="../../suntzu.html#suntzu.metadata.netCDF_Metadata.insert_netCDF_global_metadata_input">[docs]</a>
+    <span class="k">def</span> <span class="nf">insert_netCDF_global_metadata_input</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attributes</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">new_file</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="s2">&quot;new_file.nc&quot;</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Insert global metadata into a netCDF file.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            attributes (list, optional): A list of attribute names for which the user will be prompted to enter values. </span>
+<span class="sd">                If not provided, a default list of attributes will be used.</span>
+<span class="sd">            new_file (bool, optional): A boolean indicating whether a new file should be created. </span>
+<span class="sd">                If True, the metadata will be exported to a file specified by the filename parameter. </span>
+<span class="sd">                Default is False.</span>
+<span class="sd">            filename (str, optional): The name of the file to which the metadata should be exported if new_file is True. </span>
+<span class="sd">                Default is &quot;new_file.nc&quot;.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            None. The function modifies the metadata of the netCDF file and optionally exports it to a new file.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">default_attributes</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="s2">&quot;Title&quot;</span><span class="p">,</span> <span class="s2">&quot;Institution&quot;</span><span class="p">,</span> <span class="s2">&quot;Source&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;History&quot;</span><span class="p">,</span> <span class="s2">&quot;References&quot;</span><span class="p">,</span> <span class="s2">&quot;Conventions&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;Creator_Author&quot;</span><span class="p">,</span> <span class="s2">&quot;Project&quot;</span><span class="p">,</span> <span class="s2">&quot;Description&quot;</span>
+        <span class="p">]</span>
+        <span class="k">if</span> <span class="n">attributes</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">attributes</span> <span class="o">=</span> <span class="n">default_attributes</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">attributes</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;attributes must be a list&quot;</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">attribute</span> <span class="ow">in</span> <span class="n">attributes</span><span class="p">:</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">attribute</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;attributes must contain only strings&quot;</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="n">attribute</span><span class="p">]</span> <span class="o">=</span> <span class="nb">input</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">attribute</span><span class="si">}</span><span class="s2"> - Enter value: &quot;</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">ValueError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;An error occurred: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="kn">from</span> <span class="nn">.file</span> <span class="kn">import</span> <span class="n">File</span>      
+        <span class="k">if</span> <span class="n">new_file</span><span class="p">:</span>
+            <span class="n">File</span><span class="o">.</span><span class="n">export_to_file</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">)</span>
+        <span class="n">netCDF_Metadata</span><span class="o">.</span><span class="n">read_global_metadata</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="netCDF_Metadata.insert_netCDF_global_metadata_dict">
+<a class="viewcode-back" href="../../suntzu.html#suntzu.metadata.netCDF_Metadata.insert_netCDF_global_metadata_dict">[docs]</a>
+    <span class="k">def</span> <span class="nf">insert_netCDF_global_metadata_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dictionary</span><span class="p">,</span> <span class="n">new_file</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="s2">&quot;new_file.nc&quot;</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Insert global metadata into a netCDF file.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            self (NetCDFFile): An instance of the NetCDFFile class.</span>
+<span class="sd">            dictionary (dict): A dictionary containing the global metadata to be inserted into the netCDF file.</span>
+<span class="sd">            new_file (bool, optional): A boolean flag indicating whether to export the modified netCDF file to a new file. Default is False.</span>
+<span class="sd">            filename (str, optional): The filename of the new netCDF file to be exported. Default is &#39;new_file.nc&#39;.</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            TypeError: If the dictionary input is not of type dict.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            None. The function modifies the netCDF file by inserting the global metadata attributes. If new_file is True, it also exports the modified netCDF file to a new file.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">dictionary</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">dictionary</span><span class="si">}</span><span class="s2"> is not a dictionary.&quot;</span><span class="p">)</span>
+        
+        <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">dictionary</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+        <span class="kn">from</span> <span class="nn">.file</span> <span class="kn">import</span> <span class="n">File</span>
+        <span class="k">if</span> <span class="n">new_file</span><span class="p">:</span>
+            <span class="n">File</span><span class="o">.</span><span class="n">export_to_file</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">)</span>
+        <span class="n">netCDF_Metadata</span><span class="o">.</span><span class="n">read_global_metadata</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="netCDF_Metadata.insert_netCDF_global_metadata_json">
+<a class="viewcode-back" href="../../suntzu.html#suntzu.metadata.netCDF_Metadata.insert_netCDF_global_metadata_json">[docs]</a>
+    <span class="k">def</span> <span class="nf">insert_netCDF_global_metadata_json</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">json_file</span><span class="p">,</span> <span class="n">new_file</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="s2">&quot;new_file.nc&quot;</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Inserts global metadata from a JSON file into a netCDF file.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            self: The instance of the class calling the function.</span>
+<span class="sd">            json_file (str): The path to the JSON file containing the metadata.</span>
+<span class="sd">            new_file (bool, optional): Indicates whether a new netCDF file should be created. Default is False.</span>
+<span class="sd">            filename (str, optional): Specifies the name of the new netCDF file. Default is &quot;new_file.nc&quot;.</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            FileNotFoundError: If there is an error opening the JSON file.</span>
+<span class="sd">            json.JSONDecodeError: If there is an error decoding the JSON file.</span>
+<span class="sd">            ValueError: If the filename is invalid.</span>
+<span class="sd">            FileExistsError: If the filename already exists.</span>
+<span class="sd">            ValidationError: If the JSON file does not match the specified schema.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            None</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">schema</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;object&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;patternProperties&quot;</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s2">&quot;.*&quot;</span><span class="p">:</span> <span class="p">{</span> <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;string&quot;</span> <span class="p">}</span>
+            <span class="p">},</span>
+            <span class="s2">&quot;additionalProperties&quot;</span><span class="p">:</span> <span class="kc">False</span>
+        <span class="p">}</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">json_file</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">file</span><span class="p">:</span>
+                <span class="n">metadata</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">file</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">FileNotFoundError</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">FileNotFoundError</span><span class="p">(</span><span class="s2">&quot;Error opening JSON file. Please check if the file exists or if there are any permission issues.&quot;</span><span class="p">)</span>
+        <span class="k">except</span> <span class="n">json</span><span class="o">.</span><span class="n">JSONDecodeError</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">json</span><span class="o">.</span><span class="n">JSONDecodeError</span><span class="p">(</span><span class="s2">&quot;Error decoding JSON file. Please check if the file contains valid JSON.&quot;</span><span class="p">)</span>
+        
+        <span class="k">try</span><span class="p">:</span>
+            <span class="c1"># Validate JSON against schema</span>
+            <span class="n">jsonschema</span><span class="o">.</span><span class="n">validate</span><span class="p">(</span><span class="n">instance</span><span class="o">=</span><span class="n">metadata</span><span class="p">,</span> <span class="n">schema</span><span class="o">=</span><span class="n">schema</span><span class="p">)</span>
+        <span class="k">except</span> <span class="n">ValidationError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">ValidationError</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">))</span>
+        <span class="kn">from</span> <span class="nn">.file</span> <span class="kn">import</span> <span class="n">File</span>
+        <span class="k">if</span> <span class="n">new_file</span><span class="p">:</span>
+            <span class="n">File</span><span class="o">.</span><span class="n">export_to_file</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">)</span>
+        <span class="n">netCDF_Metadata</span><span class="o">.</span><span class="n">read_global_metadata</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="netCDF_Metadata.insert_netCDF_global_metadata">
+<a class="viewcode-back" href="../../suntzu.html#suntzu.metadata.netCDF_Metadata.insert_netCDF_global_metadata">[docs]</a>
+    <span class="k">def</span> <span class="nf">insert_netCDF_global_metadata</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">via</span><span class="o">=</span><span class="s2">&quot;input&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Insert global metadata into a NetCDF file.</span>
+
+<span class="sd">        Parameters:</span>
+<span class="sd">        via (str, optional): The method of providing metadata. Can be &quot;dict&quot;, &quot;json&quot;, or &quot;input&quot;. Defaults to &quot;input&quot;.</span>
+<span class="sd">        **kwargs: Additional keyword arguments for the specific method.</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">        ValueError: If the provided &#39;via&#39; parameter is not valid or if there is an error inserting the metadata.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">        None. The method modifies the metadata of the NetCDF file.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">via_lower</span> <span class="o">=</span> <span class="n">via</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">via_lower</span> <span class="o">==</span> <span class="s2">&quot;dict&quot;</span><span class="p">:</span>
+                <span class="n">netCDF_Metadata</span><span class="o">.</span><span class="n">insert_netCDF_global_metadata_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="n">via_lower</span> <span class="o">==</span> <span class="s2">&quot;json&quot;</span><span class="p">:</span>
+                <span class="n">netCDF_Metadata</span><span class="o">.</span><span class="n">insert_netCDF_global_metadata_json</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="n">via_lower</span> <span class="o">==</span> <span class="s2">&quot;input&quot;</span><span class="p">:</span>
+                <span class="n">netCDF_Metadata</span><span class="o">.</span><span class="n">insert_netCDF_global_metadata_input</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">via</span><span class="si">}</span><span class="s2"> is not a valid metadata input.&quot;</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Error inserting netCDF metadata: </span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div>
+</div>
+
+<div class="viewcode-block" id="ParquetMetadata">
+<a class="viewcode-back" href="../../suntzu.html#suntzu.metadata.ParquetMetadata">[docs]</a>
+<span class="k">class</span> <span class="nc">ParquetMetadata</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    The `ParquetMetadata` class is a subclass of `pd.DataFrame` that provides methods for reading and inserting metadata into Parquet files. It allows users to read the metadata of a Parquet file and print the attributes of each column. Users can also insert metadata into a Parquet file using various methods such as providing metadata through user input, a dictionary, or a JSON file.</span>
+
+<span class="sd">    Main functionalities:</span>
+<span class="sd">    - Reading the metadata of a Parquet file and printing the attributes of each column</span>
+<span class="sd">    - Inserting metadata into a Parquet file using user input, a dictionary, or a JSON file</span>
+
+<span class="sd">    Methods:</span>
+<span class="sd">    - read_parquet_metadata(attributes=None, cols=None): Reads the metadata of a Parquet file and prints the attributes of each column.</span>
+<span class="sd">    - insert_parquet_metadata_input(attributes=None, cols=None, new_file=False, filename=&quot;new_file.parquet&quot;): Inserts metadata for columns in a Parquet file.</span>
+<span class="sd">    - insert_parquet_metadata_dict(dictionary, cols=None, new_file=False, filename=&quot;new_file.parquet&quot;): Inserts metadata into a Parquet file based on a given dictionary.</span>
+<span class="sd">    - insert_parquet_metadata_json(json_file, new_file=False, filename=&quot;new_file.parquet&quot;): Inserts metadata from a JSON file into a Parquet file.</span>
+<span class="sd">    - insert_parquet_metadata(via=&quot;input&quot;, **kwargs): Inserts metadata into a Parquet file.</span>
+
+<span class="sd">    Fields:</span>
+<span class="sd">    - No significant fields.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+<div class="viewcode-block" id="ParquetMetadata.read_parquet_metadata">
+<a class="viewcode-back" href="../../suntzu.html#suntzu.metadata.ParquetMetadata.read_parquet_metadata">[docs]</a>
+    <span class="k">def</span> <span class="nf">read_parquet_metadata</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attributes</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">cols</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Reads the metadata of a Parquet file and prints the attributes of each column.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            attributes (list, optional): A list of attributes to filter the metadata. If not provided, all attributes will be printed.</span>
+<span class="sd">            cols (list, optional): A list of column names to filter the columns. If not provided, metadata of all columns will be printed.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            None</span>
+
+<span class="sd">        Example Usage:</span>
+<span class="sd">            # Example 1: Read metadata of all columns</span>
+<span class="sd">            read_parquet_metadata()</span>
+
+<span class="sd">            # Example 2: Read metadata of specific columns</span>
+<span class="sd">            read_parquet_metadata(cols=[&#39;column1&#39;, &#39;column2&#39;])</span>
+
+<span class="sd">            # Example 3: Read metadata of specific attributes</span>
+<span class="sd">            read_parquet_metadata(attributes=[&#39;attribute1&#39;, &#39;attribute2&#39;])</span>
+
+<span class="sd">            # Example 4: Read metadata of specific columns and attributes</span>
+<span class="sd">            read_parquet_metadata(cols=[&#39;column1&#39;, &#39;column2&#39;], attributes=[&#39;attribute1&#39;, &#39;attribute2&#39;])</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">):</span>
+            <span class="bp">self</span> <span class="o">=</span> <span class="n">pa</span><span class="o">.</span><span class="n">Table</span><span class="o">.</span><span class="n">from_pandas</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">cols</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">num_columns</span><span class="p">):</span>
+                <span class="n">field</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">field</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+                <span class="n">col</span> <span class="o">=</span> <span class="n">field</span><span class="o">.</span><span class="n">name</span>
+                <span class="nb">print</span><span class="p">(</span><span class="n">col</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">field</span><span class="o">.</span><span class="n">metadata</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;    No attributes were found for this column.&quot;</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">metadata</span> <span class="o">=</span> <span class="p">{</span><span class="n">key</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s1">&#39;utf-8&#39;</span><span class="p">):</span> <span class="n">value</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s1">&#39;utf-8&#39;</span><span class="p">)</span> <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">field</span><span class="o">.</span><span class="n">metadata</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
+                    <span class="k">if</span> <span class="n">attributes</span><span class="p">:</span>
+                        <span class="k">for</span> <span class="n">attr</span> <span class="ow">in</span> <span class="n">attributes</span><span class="p">:</span>
+                            <span class="k">if</span> <span class="n">attr</span> <span class="ow">in</span> <span class="n">metadata</span><span class="p">:</span>
+                                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;    </span><span class="si">{</span><span class="n">attr</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">metadata</span><span class="p">[</span><span class="n">attr</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                            <span class="k">else</span><span class="p">:</span>
+                                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;    The &#39;</span><span class="si">{</span><span class="n">attr</span><span class="si">}</span><span class="s2">&#39; attribute was not found in this column&#39;s metadata.&quot;</span><span class="p">)</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">metadata</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;    </span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">value</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span> 
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">num_columns</span><span class="p">):</span>
+                <span class="n">field</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">field</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+                <span class="n">col</span> <span class="o">=</span> <span class="n">field</span><span class="o">.</span><span class="n">name</span>
+                <span class="k">if</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">cols</span><span class="p">:</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="n">col</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="n">field</span><span class="o">.</span><span class="n">metadata</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;    No attributes were found for this column.&quot;</span><span class="p">)</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">metadata</span> <span class="o">=</span> <span class="p">{</span><span class="n">key</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s1">&#39;utf-8&#39;</span><span class="p">):</span> <span class="n">value</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s1">&#39;utf-8&#39;</span><span class="p">)</span> <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">field</span><span class="o">.</span><span class="n">metadata</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
+                        <span class="k">if</span> <span class="n">attributes</span><span class="p">:</span>
+                            <span class="k">for</span> <span class="n">attr</span> <span class="ow">in</span> <span class="n">attributes</span><span class="p">:</span>
+                                <span class="k">if</span> <span class="n">attr</span> <span class="ow">in</span> <span class="n">metadata</span><span class="p">:</span>
+                                    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;    </span><span class="si">{</span><span class="n">attr</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">metadata</span><span class="p">[</span><span class="n">attr</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                                <span class="k">else</span><span class="p">:</span>
+                                    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;    The &#39;</span><span class="si">{</span><span class="n">attr</span><span class="si">}</span><span class="s2">&#39; attribute was not found in this column&#39;s metadata.&quot;</span><span class="p">)</span>
+                        <span class="k">else</span><span class="p">:</span>
+                            <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">metadata</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;    </span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">value</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="ParquetMetadata.insert_parquet_metadata_input">
+<a class="viewcode-back" href="../../suntzu.html#suntzu.metadata.ParquetMetadata.insert_parquet_metadata_input">[docs]</a>
+    <span class="k">def</span> <span class="nf">insert_parquet_metadata_input</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attributes</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">cols</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">new_file</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="s2">&quot;new_file.parquet&quot;</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Insert metadata for columns in a Parquet file.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            attributes (list, optional): A list of attributes for which metadata needs to be inserted. If not provided, default attributes are used.</span>
+<span class="sd">            cols (list, optional): A list of columns for which metadata needs to be inserted. If not provided, metadata is inserted for all columns in the DataFrame.</span>
+<span class="sd">            new_file (bool, optional): A boolean indicating whether to export the DataFrame to a new Parquet file. Default is False.</span>
+<span class="sd">            filename (str, optional): The name of the new Parquet file. Default is &quot;new_file.parquet&quot;.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            pyarrow.Table: A Parquet table with the inserted metadata.</span>
+
+<span class="sd">        Example Usage:</span>
+<span class="sd">            # Insert metadata for all columns in a DataFrame and export it to a Parquet file</span>
+<span class="sd">            df.insert_parquet_metadata_input()</span>
+
+<span class="sd">            # Insert metadata for specific columns in a DataFrame and export it to a new Parquet file</span>
+<span class="sd">            df.insert_parquet_metadata_input(attributes=[&#39;Description&#39;, &#39;Units&#39;], cols=[&#39;col1&#39;, &#39;col2&#39;], new_file=True, filename=&#39;metadata.parquet&#39;)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">default_attributes</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;Description&#39;</span><span class="p">,</span> <span class="s1">&#39;Units&#39;</span><span class="p">,</span> <span class="s1">&#39;Data Source&#39;</span><span class="p">,</span> <span class="s1">&#39;Valid Range or Categories&#39;</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">attributes</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">attributes</span> <span class="o">=</span> <span class="n">default_attributes</span>
+        <span class="k">if</span> <span class="n">cols</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">cols</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span>
+        <span class="n">metadata</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">columns</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">columns</span>  
+        <span class="n">cols_set</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">cols</span><span class="p">)</span>  
+        <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">columns</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">cols_set</span><span class="p">:</span>
+                <span class="n">col_metadata</span> <span class="o">=</span> <span class="p">{}</span>
+                <span class="k">for</span> <span class="n">attribute</span> <span class="ow">in</span> <span class="n">attributes</span><span class="p">:</span>
+                    <span class="n">data</span> <span class="o">=</span> <span class="nb">input</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">col</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">attribute</span><span class="si">}</span><span class="s2"> - Enter value: &quot;</span><span class="p">)</span>
+                    <span class="n">col_metadata</span><span class="p">[</span><span class="n">attribute</span><span class="p">]</span> <span class="o">=</span> <span class="n">data</span>
+                <span class="n">metadata</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">col_metadata</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">metadata</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span>
+        <span class="n">dtypes</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dtypes</span>
+        <span class="n">dtypes</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;string&quot;</span> <span class="k">if</span> <span class="n">dtype</span> <span class="o">==</span> <span class="s2">&quot;category&quot;</span> <span class="k">else</span> <span class="nb">str</span><span class="p">(</span><span class="n">dtype</span><span class="p">)</span> <span class="k">for</span> <span class="n">dtype</span> <span class="ow">in</span> <span class="n">dtypes</span><span class="p">]</span>
+        <span class="n">cols_dtypes</span> <span class="o">=</span> <span class="nb">zip</span><span class="p">(</span><span class="n">columns</span><span class="p">,</span> <span class="n">dtypes</span><span class="p">,</span> <span class="n">metadata</span><span class="p">)</span>
+        <span class="n">schema</span> <span class="o">=</span> <span class="p">[</span><span class="n">pa</span><span class="o">.</span><span class="n">field</span><span class="p">(</span><span class="n">col</span><span class="p">,</span> <span class="n">pa</span><span class="o">.</span><span class="n">type_for_alias</span><span class="p">(</span><span class="n">dtype</span><span class="p">),</span> <span class="n">metadata</span><span class="o">=</span><span class="n">meta</span><span class="p">)</span> <span class="k">for</span> <span class="n">col</span><span class="p">,</span> <span class="n">dtype</span><span class="p">,</span> <span class="n">meta</span> <span class="ow">in</span> <span class="n">cols_dtypes</span><span class="p">]</span>
+        <span class="n">table_schema</span> <span class="o">=</span> <span class="n">pa</span><span class="o">.</span><span class="n">schema</span><span class="p">(</span><span class="n">schema</span><span class="p">)</span>
+        <span class="n">table</span> <span class="o">=</span> <span class="n">pa</span><span class="o">.</span><span class="n">Table</span><span class="o">.</span><span class="n">from_pandas</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">schema</span><span class="o">=</span><span class="n">table_schema</span><span class="p">)</span>
+        <span class="kn">from</span> <span class="nn">.file</span> <span class="kn">import</span> <span class="n">File</span> 
+        <span class="k">if</span> <span class="n">new_file</span><span class="p">:</span>
+            <span class="n">File</span><span class="o">.</span><span class="n">export_to_file</span><span class="p">(</span><span class="n">table</span><span class="p">,</span> <span class="n">filename</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">table</span></div>
+
+<div class="viewcode-block" id="ParquetMetadata.insert_parquet_metadata_dict">
+<a class="viewcode-back" href="../../suntzu.html#suntzu.metadata.ParquetMetadata.insert_parquet_metadata_dict">[docs]</a>
+    <span class="k">def</span> <span class="nf">insert_parquet_metadata_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dictionary</span><span class="p">,</span> <span class="n">cols</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">new_file</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="s2">&quot;new_file.parquet&quot;</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Inserts metadata into a Parquet file based on a given dictionary.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            dictionary (dict): A dictionary containing the metadata to be inserted into the Parquet file.</span>
+<span class="sd">            cols (list, optional): A list of column names to specify which columns the metadata should be inserted into. </span>
+<span class="sd">                If not provided, metadata will be inserted into all columns. Default is None.</span>
+<span class="sd">            new_file (bool, optional): A boolean value indicating whether to create a new Parquet file with the inserted metadata. </span>
+<span class="sd">                Default is False.</span>
+<span class="sd">            filename (str, optional): The name of the new Parquet file to be created. Default is &quot;new_file.parquet&quot;.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            pyarrow.Table: A Parquet table with the inserted metadata.</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            ValueError: If the dictionary parameter is not provided.</span>
+<span class="sd">            AttributeError: If the dictionary parameter is not a dictionary.</span>
+
+<span class="sd">        Example Usage:</span>
+<span class="sd">            # Create a DataFrame</span>
+<span class="sd">            df = pd.DataFrame({&#39;A&#39;: [1, 2, 3], &#39;B&#39;: [&#39;a&#39;, &#39;b&#39;, &#39;c&#39;]})</span>
+
+<span class="sd">            # Define a dictionary with metadata</span>
+<span class="sd">            metadata_dict = {&#39;A&#39;: &#39;This is column A&#39;, &#39;B&#39;: &#39;This is column B&#39;}</span>
+
+<span class="sd">            # Insert metadata into the Parquet file</span>
+<span class="sd">            df.insert_parquet_metadata_dict(metadata_dict, new_file=True, filename=&#39;new_file.parquet&#39;)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="n">dictionary</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Please provide a dictionary.&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">cols</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">cols</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span>
+        <span class="n">columns</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">columns</span>
+        <span class="n">dtypes</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dtypes</span>
+        <span class="n">dtypes</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;string&quot;</span> <span class="k">if</span> <span class="n">dtype</span> <span class="o">==</span> <span class="s2">&quot;category&quot;</span> <span class="k">else</span> <span class="nb">str</span><span class="p">(</span><span class="n">dtype</span><span class="p">)</span> <span class="k">for</span> <span class="n">dtype</span> <span class="ow">in</span> <span class="n">dtypes</span><span class="p">]</span>
+        <span class="n">metadata</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">dictionary</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+            <span class="n">cols_set</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">cols</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">columns</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">cols_set</span><span class="p">:</span>
+                    <span class="n">metadata</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">dictionary</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">metadata</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span>
+            <span class="n">cols_dtypes</span> <span class="o">=</span> <span class="nb">zip</span><span class="p">(</span><span class="n">columns</span><span class="p">,</span> <span class="n">dtypes</span><span class="p">,</span> <span class="n">metadata</span><span class="p">)</span>
+            <span class="n">schema</span> <span class="o">=</span> <span class="p">[</span><span class="n">pa</span><span class="o">.</span><span class="n">field</span><span class="p">(</span><span class="n">col</span><span class="p">,</span> <span class="n">pa</span><span class="o">.</span><span class="n">type_for_alias</span><span class="p">(</span><span class="n">dtype</span><span class="p">),</span> <span class="n">metadata</span><span class="o">=</span><span class="n">meta</span><span class="p">)</span> <span class="k">for</span> <span class="n">col</span><span class="p">,</span> <span class="n">dtype</span><span class="p">,</span> <span class="n">meta</span> <span class="ow">in</span> <span class="n">cols_dtypes</span><span class="p">]</span>
+            <span class="n">table_schema</span> <span class="o">=</span> <span class="n">pa</span><span class="o">.</span><span class="n">schema</span><span class="p">(</span><span class="n">schema</span><span class="p">)</span>
+            <span class="n">table</span> <span class="o">=</span> <span class="n">pa</span><span class="o">.</span><span class="n">Table</span><span class="o">.</span><span class="n">from_pandas</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">schema</span><span class="o">=</span><span class="n">table_schema</span><span class="p">)</span>
+            <span class="kn">from</span> <span class="nn">.file</span> <span class="kn">import</span> <span class="n">File</span>       
+            <span class="k">if</span> <span class="n">new_file</span><span class="p">:</span>
+                <span class="n">File</span><span class="o">.</span><span class="n">export_to_file</span><span class="p">(</span><span class="n">table</span><span class="p">,</span> <span class="n">filename</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">table</span>  
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">AttributeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">dictionary</span><span class="si">}</span><span class="s2"> is not a dictionary.&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="ParquetMetadata.insert_parquet_metadata_json">
+<a class="viewcode-back" href="../../suntzu.html#suntzu.metadata.ParquetMetadata.insert_parquet_metadata_json">[docs]</a>
+    <span class="k">def</span> <span class="nf">insert_parquet_metadata_json</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">json_file</span><span class="p">,</span> <span class="n">new_file</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="s2">&quot;new_file.parquet&quot;</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Inserts metadata from a JSON file into a Parquet file.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            json_file (str): The path to the JSON file containing the metadata.</span>
+<span class="sd">            new_file (bool, optional): Indicates whether a new Parquet file should be created. Defaults to False.</span>
+<span class="sd">            filename (str, optional): The name of the new Parquet file. Defaults to &quot;new_file.parquet&quot;.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            pyarrow.Table: The Parquet table with the updated metadata.</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            IOError: If there is an error opening the JSON file.</span>
+<span class="sd">            ValidationError: If the JSON data does not match the predefined schema.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">schema</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;object&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;patternProperties&quot;</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s2">&quot;.*&quot;</span><span class="p">:</span> <span class="p">{</span>
+                    <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;object&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;patternProperties&quot;</span><span class="p">:</span> <span class="p">{</span>
+                        <span class="s2">&quot;.*&quot;</span><span class="p">:</span> <span class="p">{</span>
+                            <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;string&quot;</span><span class="p">,</span>
+                        <span class="p">}</span>
+                    <span class="p">}</span>
+                <span class="p">},</span>
+                <span class="s2">&quot;additionalProperties&quot;</span><span class="p">:</span> <span class="kc">False</span>
+            <span class="p">}</span>
+        <span class="p">}</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">json_file</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">file</span><span class="p">:</span>
+                <span class="n">json_data</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">file</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">IOError</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">IOError</span><span class="p">(</span><span class="s2">&quot;Error opening JSON file. Please check if the file exists or if there are any permission issues.&quot;</span><span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="c1"># Validate JSON against schema</span>
+            <span class="n">jsonschema</span><span class="o">.</span><span class="n">validate</span><span class="p">(</span><span class="n">instance</span><span class="o">=</span><span class="n">json_data</span><span class="p">,</span> <span class="n">schema</span><span class="o">=</span><span class="n">schema</span><span class="p">)</span>
+        <span class="k">except</span> <span class="n">ValidationError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">ValidationError</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">))</span>
+        <span class="n">cols_dtypes</span> <span class="o">=</span> <span class="n">Statistics</span><span class="o">.</span><span class="n">get_cols_dtypes</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="n">cols_dtypes</span> <span class="o">=</span> <span class="p">[[</span><span class="n">col</span><span class="p">,</span> <span class="s2">&quot;string&quot;</span><span class="p">]</span> <span class="k">if</span> <span class="n">dtype</span> <span class="o">==</span> <span class="s2">&quot;category&quot;</span> <span class="k">else</span> <span class="p">[</span><span class="n">col</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">dtype</span><span class="p">)]</span> <span class="k">for</span> <span class="n">col</span><span class="p">,</span> <span class="n">dtype</span> <span class="ow">in</span> <span class="n">cols_dtypes</span><span class="p">]</span>
+        <span class="n">metadata</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">cols_dtypes</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">col</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">in</span> <span class="n">json_data</span><span class="p">:</span>
+                <span class="n">col_metadata</span> <span class="o">=</span> <span class="n">json_data</span><span class="p">[</span><span class="n">col</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span>
+                <span class="n">metadata</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">col_metadata</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">metadata</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span>
+        <span class="n">cols_dtypes</span> <span class="o">=</span> <span class="nb">zip</span><span class="p">(</span><span class="n">cols_dtypes</span><span class="p">,</span> <span class="n">metadata</span><span class="p">)</span>
+        <span class="n">schema</span> <span class="o">=</span> <span class="p">[</span><span class="n">pa</span><span class="o">.</span><span class="n">field</span><span class="p">(</span><span class="n">col_dtype</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">pa</span><span class="o">.</span><span class="n">type_for_alias</span><span class="p">(</span><span class="n">col_dtype</span><span class="p">[</span><span class="mi">1</span><span class="p">]),</span> <span class="n">metadata</span><span class="o">=</span><span class="n">meta</span><span class="p">)</span> <span class="k">for</span> <span class="n">col_dtype</span><span class="p">,</span> <span class="n">meta</span> <span class="ow">in</span> <span class="n">cols_dtypes</span><span class="p">]</span>
+        <span class="n">table_schema</span> <span class="o">=</span> <span class="n">pa</span><span class="o">.</span><span class="n">schema</span><span class="p">(</span><span class="n">schema</span><span class="p">)</span>
+        <span class="n">table</span> <span class="o">=</span> <span class="n">pa</span><span class="o">.</span><span class="n">Table</span><span class="o">.</span><span class="n">from_pandas</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">schema</span><span class="o">=</span><span class="n">table_schema</span><span class="p">)</span>
+        <span class="kn">from</span> <span class="nn">.file</span> <span class="kn">import</span> <span class="n">File</span>
+        <span class="k">if</span> <span class="n">new_file</span><span class="p">:</span>
+            <span class="n">File</span><span class="o">.</span><span class="n">export_to_file</span><span class="p">(</span><span class="n">table</span><span class="p">,</span> <span class="n">filename</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">table</span></div>
+
+<div class="viewcode-block" id="ParquetMetadata.insert_parquet_metadata">
+<a class="viewcode-back" href="../../suntzu.html#suntzu.metadata.ParquetMetadata.insert_parquet_metadata">[docs]</a>
+    <span class="k">def</span> <span class="nf">insert_parquet_metadata</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">via</span><span class="o">=</span><span class="s2">&quot;input&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Insert metadata into a Parquet file.</span>
+
+<span class="sd">        Parameters:</span>
+<span class="sd">        - via (str): The method of providing metadata. It can be &quot;dict&quot;, &quot;json&quot;, or &quot;input&quot;.</span>
+<span class="sd">        - **kwargs: Additional keyword arguments for the specific method.</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">        - ValueError: If `via` is not a valid metadata input or if an error occurs during metadata insertion.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">        - None: The method modifies the metadata of the Parquet file directly.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">via_lower</span> <span class="o">=</span> <span class="n">via</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">via_lower</span> <span class="o">==</span> <span class="s2">&quot;dict&quot;</span><span class="p">:</span>
+                <span class="n">ParquetMetadata</span><span class="o">.</span><span class="n">insert_parquet_metadata_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="n">via_lower</span> <span class="o">==</span> <span class="s2">&quot;json&quot;</span><span class="p">:</span>
+                <span class="n">ParquetMetadata</span><span class="o">.</span><span class="n">insert_parquet_metadata_json</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="n">via_lower</span> <span class="o">==</span> <span class="s2">&quot;input&quot;</span><span class="p">:</span>
+                <span class="n">ParquetMetadata</span><span class="o">.</span><span class="n">insert_parquet_metadata_input</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">via</span><span class="si">}</span><span class="s2"> is not a valid metadata input.&quot;</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Error inserting netCDF metadata: </span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div>
+</div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Igor Carvalheira.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

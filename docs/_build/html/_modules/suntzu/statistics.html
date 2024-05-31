@@ -1,0 +1,1122 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>suntzu.statistics &mdash; SunTzu 0.2.2 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=19f00094" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../../_static/documentation_options.js?v=000c92bf"></script>
+        <script src="../../_static/doctools.js?v=888ff710"></script>
+        <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            SunTzu
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../suntzu.html">suntzu package</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">SunTzu</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">suntzu.statistics</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for suntzu.statistics</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">IPython.display</span> <span class="kn">import</span> <span class="n">display</span>
+<span class="kn">import</span> <span class="nn">xarray</span> <span class="k">as</span> <span class="nn">xr</span>
+<div class="viewcode-block" id="Statistics">
+<a class="viewcode-back" href="../../suntzu.html#suntzu.statistics.Statistics">[docs]</a>
+<span class="k">class</span> <span class="nc">Statistics</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    The `Statistics` class is a subclass of the `pd.DataFrame` class in the pandas library. It provides additional methods for performing statistical analysis and data exploration on a DataFrame, such as finding maximum and minimum values, counting occurrences, calculating percentages, and generating insights about the data.</span>
+
+<span class="sd">    Main functionalities:</span>
+<span class="sd">    - Getting the data types of the columns</span>
+<span class="sd">    - Getting the column names</span>
+<span class="sd">    - Getting the data types of the columns as a DataFrame</span>
+<span class="sd">    - Converting the columns to the best data type</span>
+<span class="sd">    - Calculating the memory usage of each column</span>
+<span class="sd">    - Calculating the memory usage percentage of each column</span>
+<span class="sd">    - Calculating the number of null values in each column</span>
+<span class="sd">    - Calculating the percentage of null values in each column</span>
+<span class="sd">    - Calculating the number of unique values in each column</span>
+<span class="sd">    - Finding maximum and minimum values in each column of a DataFrame</span>
+<span class="sd">    - Counting occurrences of maximum and minimum values</span>
+<span class="sd">    - Calculating the percentage of maximum and minimum values</span>
+<span class="sd">    - Generating insights about the data, such as memory usage and number of missing values</span>
+<span class="sd">    - Filtering the data based on specified conditions</span>
+
+<span class="sd">    Methods:</span>
+<span class="sd">    - get_dtypes(cols=None, output=True): Gets the data types of the specified columns.</span>
+<span class="sd">    - get_cols(): Gets the column names of the DataFrame.</span>
+<span class="sd">    - get_cols_dtypes(cols=None, get_df=True): Returns the data types of the specified columns in a DataFrame.</span>
+<span class="sd">    - convert_cols(): Converts the columns to the best data type.</span>
+<span class="sd">    - get_memory_usage(cols=None, output=True, get_total=True, show_df=False, unit=&quot;kb&quot;, use_deep=True, get_dict=False): Calculates the memory usage of each column.</span>
+<span class="sd">    - get_memory_usage_percentage(cols=None, output=True, unit=&quot;kb&quot;, get_total=True, show_df=False, use_deep=True, get_dict=False): Calculates the memory usage percentage of each column.</span>
+<span class="sd">    - get_nulls_count(cols=None, output=True, show_df=False, get_total=True, get_dict=False): Calculates the number of null values in each column.</span>
+<span class="sd">    - get_null_percentage(cols=None, output=True, show_df=False, get_total=True, get_dict=False): Calculates the percentage of null values in each column.</span>
+<span class="sd">    - get_num_of_unique_values(cols=None, output=True, show_df=False): Calculates the number of unique values in specified columns.</span>
+<span class="sd">    - get_max_values(cols=None, output=True, show_df=False): Finds the maximum values or the most common values in each column of a DataFrame.</span>
+<span class="sd">    - get_max_values_count(cols=None, output=True, show_df=False): Returns the number of occurrences of the maximum value or the most common value in each column of a DataFrame.</span>
+<span class="sd">    - get_max_values_percentage(cols=None, output=True, show_df=False): Calculates the percentage of the maximum value or the most common value in each column of a DataFrame.</span>
+<span class="sd">    - get_min_values(cols=None, output=True, show_df=False): Retrieves the minimum values or the less common values in each column of a DataFrame.</span>
+<span class="sd">    - get_min_values_count(cols=None, output=True, show_df=False): Calculates the count of the minimum values or the count of the less common values in each column of a DataFrame.</span>
+<span class="sd">    - get_min_values_percentage(cols=None, output=True, show_df=False): Calculates the percentage of the minimum value or the percentage of the less common value in each column of a DataFrame.</span>
+<span class="sd">    - get_dataframe_mem_insight(transpose=False): Generates memory insights for each column in a given DataFrame.</span>
+<span class="sd">    - get_dataframe_values_insight(transpose=False): Generates insights about the values in each column of a given DataFrame.</span>
+<span class="sd">    - find(conditions, AND=True, OR=False): Filters the data in a DataFrame based on specified conditions using logical operators (AND or OR).</span>
+<span class="sd">    - find_replace(conditions, replace_with, AND=True, OR=False): Finds rows in a DataFrame that meet certain conditions and replaces values in a specified column with a new value.</span>
+<span class="sd">    - find_delete(conditions, AND=True, OR=False): Finds rows in the DataFrame that meet certain conditions, deletes those rows from the DataFrame, and returns the modified DataFrame.</span>
+<span class="sd">    </span>
+<span class="sd">    Fields:</span>
+<span class="sd">    - The `Statistics` class inherits all the fields from the `pd.DataFrame` class, which include the columns, index, and data of the DataFrame.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="Statistics.get_dtypes">
+<a class="viewcode-back" href="../../suntzu.html#suntzu.statistics.Statistics.get_dtypes">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_dtypes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cols</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">output</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get the data types of the specified columns.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            cols (list): List of column names. If None, all columns will be used.</span>
+<span class="sd">            output (bool): If True, print the data types. Default is True.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            list: List of data types.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">cols</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">cols</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">columns</span>
+        <span class="k">if</span> <span class="n">output</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">cols</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">col</span><span class="si">}</span><span class="s2"> dtype is </span><span class="si">{</span><span class="bp">self</span><span class="p">[</span><span class="n">col</span><span class="p">]</span><span class="o">.</span><span class="n">dtype</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">dtypes</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="p">[</span><span class="n">col</span><span class="p">]</span><span class="o">.</span><span class="n">dtype</span><span class="o">.</span><span class="n">name</span> <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">cols</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">dtypes</span></div>
+
+<div class="viewcode-block" id="Statistics.get_cols">
+<a class="viewcode-back" href="../../suntzu.html#suntzu.statistics.Statistics.get_cols">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_cols</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get the column names of the DataFrame.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            list: A list of column names.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Error occurred while accessing self.columns: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="p">[]</span></div>
+
+<div class="viewcode-block" id="Statistics.get_cols_dtypes">
+<a class="viewcode-back" href="../../suntzu.html#suntzu.statistics.Statistics.get_cols_dtypes">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_cols_dtypes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cols</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">get_df</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns the data types of the specified columns in a DataFrame.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            cols (list, optional): A list of column names to get the data types for. If not provided, it gets the data types for all columns in the DataFrame.</span>
+<span class="sd">            get_df (bool, optional): A boolean flag indicating whether to return the data types as a DataFrame. Default is True.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            If get_df is True, returns a DataFrame with the column names and their data types.</span>
+<span class="sd">            If get_df is False, returns a dictionary with column names as keys and their corresponding data types as values.</span>
+<span class="sd">        </span>
+<span class="sd">        Raises:</span>
+<span class="sd">            ValueError: If the number of columns and the number of data types do not match.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">cols</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">cols</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">columns</span>
+        <span class="n">dtypes</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">cols</span><span class="p">:</span>
+            <span class="n">dtypes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Statistics</span><span class="o">.</span><span class="n">get_dtypes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="p">[</span><span class="n">col</span><span class="p">],</span> <span class="n">output</span><span class="o">=</span><span class="kc">False</span><span class="p">))</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">cols</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">dtypes</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Number of columns and number of data types do not match.&quot;</span><span class="p">)</span>
+        <span class="n">cols_dtypes</span> <span class="o">=</span> <span class="p">{</span><span class="n">col</span><span class="p">:</span> <span class="n">dtype</span> <span class="k">for</span> <span class="n">col</span><span class="p">,</span> <span class="n">dtype</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">cols</span><span class="p">,</span> <span class="n">dtypes</span><span class="p">)}</span>
+        <span class="k">if</span> <span class="n">get_df</span><span class="p">:</span>
+            <span class="n">cols_info</span> <span class="o">=</span> <span class="p">[[</span><span class="n">col</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">dtype</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="s2">&quot;[]&#39;&quot;</span><span class="p">)]</span> <span class="k">for</span> <span class="n">col</span><span class="p">,</span> <span class="n">dtype</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">cols</span><span class="p">,</span> <span class="n">dtypes</span><span class="p">)]</span>
+            <span class="n">columns_name</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;Column_Name&quot;</span><span class="p">,</span> <span class="s2">&quot;Dtype&quot;</span><span class="p">]</span>
+            <span class="n">dataframe</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">cols_info</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="n">columns_name</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">dataframe</span>
+        <span class="k">return</span> <span class="n">cols_dtypes</span></div>
+
+<div class="viewcode-block" id="Statistics.convert_python_type">
+<a class="viewcode-back" href="../../suntzu.html#suntzu.statistics.Statistics.convert_python_type">[docs]</a>
+    <span class="k">def</span> <span class="nf">convert_python_type</span><span class="p">(</span><span class="n">min_value</span><span class="p">,</span> <span class="n">max_value</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Convert the minimum and maximum values of a given type to the appropriate Python data type.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            min_value: The minimum value of a given type.</span>
+<span class="sd">            max_value: The maximum value of a given type.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            A tuple containing the converted min_value and max_value.</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            ValueError: If min_value and max_value are not of the same type or if they are not of a valid numeric or boolean type.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">min_value</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">type</span><span class="p">(</span><span class="n">max_value</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;min_value and max_value must be of the same type&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">min_value</span><span class="p">,</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">integer</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">floating</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">bool_</span><span class="p">,</span> <span class="nb">bool</span><span class="p">)):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Invalid input: min_value must be numeric or boolean.&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">max_value</span><span class="p">,</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">integer</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">floating</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">bool_</span><span class="p">,</span> <span class="nb">bool</span><span class="p">)):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Invalid input: max_value must be numeric or boolean.&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">((</span><span class="n">min_value</span><span class="p">,</span> <span class="n">max_value</span><span class="p">),</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">integer</span><span class="p">)):</span>
+            <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="n">min_value</span><span class="p">),</span> <span class="nb">int</span><span class="p">(</span><span class="n">max_value</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">((</span><span class="n">min_value</span><span class="p">,</span> <span class="n">max_value</span><span class="p">),</span> <span class="p">(</span><span class="nb">float</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">floating</span><span class="p">)):</span>
+            <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="n">min_value</span><span class="p">),</span> <span class="nb">float</span><span class="p">(</span><span class="n">max_value</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">((</span><span class="n">min_value</span><span class="p">,</span> <span class="n">max_value</span><span class="p">),</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">bool_</span><span class="p">,</span> <span class="nb">bool</span><span class="p">)):</span>
+            <span class="k">return</span> <span class="nb">bool</span><span class="p">(</span><span class="n">min_value</span><span class="p">),</span> <span class="nb">bool</span><span class="p">(</span><span class="n">max_value</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">min_value</span><span class="p">,</span> <span class="n">max_value</span></div>
+
+    
+<div class="viewcode-block" id="Statistics.get_best_dtypes">
+<a class="viewcode-back" href="../../suntzu.html#suntzu.statistics.Statistics.get_best_dtypes">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_best_dtypes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cols</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">convert</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">output</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">show_df</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Determines the best data type for each column in a DataFrame.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            cols (list, optional): A list of column names. If not provided, all columns in the DataFrame will be considered.</span>
+<span class="sd">            convert (bool, optional): Indicates whether to convert the columns to the best data type. Default is False.</span>
+<span class="sd">            output (bool, optional): Indicates whether to print the best data type for each column. Default is True.</span>
+<span class="sd">            show_df (bool, optional): Indicates whether to return a DataFrame with the column names and their best data types. Default is False.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            str or DataFrame or None: </span>
+<span class="sd">                - If convert and show_df parameters are False, returns the best data type for each column as a string.</span>
+<span class="sd">                - If convert parameter is True, returns the modified DataFrame with columns converted to the best data types.</span>
+<span class="sd">                - If show_df parameter is True, returns a DataFrame with the column names and their best data types.</span>
+<span class="sd">                - Otherwise, returns None.</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            Exception: If an error occurs while processing a column.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">cols</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">cols</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">columns</span>
+        <span class="k">if</span> <span class="n">show_df</span><span class="p">:</span>
+            <span class="n">output</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="n">dataframe</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="n">dataframe1</span> <span class="o">=</span> <span class="n">Statistics</span><span class="o">.</span><span class="n">get_cols_dtypes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">get_df</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">cols</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">is_numeric</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">types</span><span class="o">.</span><span class="n">is_numeric_dtype</span><span class="p">(</span><span class="bp">self</span><span class="p">[</span><span class="n">col</span><span class="p">])</span>
+                <span class="n">is_bool</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">types</span><span class="o">.</span><span class="n">is_bool_dtype</span><span class="p">(</span><span class="bp">self</span><span class="p">[</span><span class="n">col</span><span class="p">])</span>
+                <span class="n">is_integer</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">types</span><span class="o">.</span><span class="n">is_integer_dtype</span><span class="p">(</span><span class="bp">self</span><span class="p">[</span><span class="n">col</span><span class="p">])</span>
+                <span class="n">is_float</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">types</span><span class="o">.</span><span class="n">is_float_dtype</span><span class="p">(</span><span class="bp">self</span><span class="p">[</span><span class="n">col</span><span class="p">])</span>
+
+                <span class="k">if</span> <span class="n">is_numeric</span><span class="p">:</span>
+                    <span class="n">col_min</span> <span class="o">=</span> <span class="bp">self</span><span class="p">[</span><span class="n">col</span><span class="p">]</span><span class="o">.</span><span class="n">min</span><span class="p">()</span>
+                    <span class="n">col_max</span> <span class="o">=</span> <span class="bp">self</span><span class="p">[</span><span class="n">col</span><span class="p">]</span><span class="o">.</span><span class="n">max</span><span class="p">()</span>
+                    <span class="n">col_min</span><span class="p">,</span> <span class="n">col_max</span> <span class="o">=</span> <span class="n">Statistics</span><span class="o">.</span><span class="n">convert_python_type</span><span class="p">(</span><span class="n">col_min</span><span class="p">,</span> <span class="n">col_max</span><span class="p">)</span>
+
+                    <span class="k">if</span> <span class="n">is_bool</span><span class="p">:</span>
+                        <span class="n">col_dtype</span> <span class="o">=</span> <span class="s2">&quot;bool&quot;</span>
+                    <span class="k">elif</span> <span class="n">is_integer</span><span class="p">:</span>
+                        <span class="k">if</span> <span class="n">col_min</span> <span class="o">&gt;=</span> <span class="o">-</span><span class="mi">128</span> <span class="ow">and</span> <span class="n">col_max</span> <span class="o">&lt;=</span> <span class="mi">127</span><span class="p">:</span>
+                            <span class="n">col_dtype</span> <span class="o">=</span> <span class="s2">&quot;int8&quot;</span>
+                        <span class="k">elif</span> <span class="n">col_min</span> <span class="o">&gt;=</span> <span class="o">-</span><span class="mi">32768</span> <span class="ow">and</span> <span class="n">col_max</span> <span class="o">&lt;=</span> <span class="mi">32767</span><span class="p">:</span>
+                            <span class="n">col_dtype</span> <span class="o">=</span> <span class="s2">&quot;int16&quot;</span>
+                        <span class="k">elif</span> <span class="n">col_min</span> <span class="o">&gt;=</span> <span class="o">-</span><span class="mi">2147483648</span> <span class="ow">and</span> <span class="n">col_max</span> <span class="o">&lt;=</span> <span class="mi">2147483647</span><span class="p">:</span>
+                            <span class="n">col_dtype</span> <span class="o">=</span> <span class="s2">&quot;int32&quot;</span>
+                        <span class="k">else</span><span class="p">:</span>
+                            <span class="n">col_dtype</span> <span class="o">=</span> <span class="s2">&quot;int64&quot;</span>
+                    <span class="k">elif</span> <span class="n">is_float</span><span class="p">:</span>
+                        <span class="k">if</span> <span class="n">col_min</span> <span class="o">&gt;=</span> <span class="n">np</span><span class="o">.</span><span class="n">finfo</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float16</span><span class="p">)</span><span class="o">.</span><span class="n">min</span> <span class="ow">and</span> <span class="n">col_min</span> <span class="o">&lt;=</span> <span class="n">np</span><span class="o">.</span><span class="n">finfo</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float16</span><span class="p">)</span><span class="o">.</span><span class="n">max</span><span class="p">:</span>
+                            <span class="n">col_dtype</span> <span class="o">=</span> <span class="s2">&quot;float16&quot;</span>
+                        <span class="k">elif</span> <span class="n">col_max</span> <span class="o">&gt;=</span> <span class="n">np</span><span class="o">.</span><span class="n">finfo</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span><span class="o">.</span><span class="n">min</span> <span class="ow">and</span> <span class="n">col_max</span> <span class="o">&lt;=</span> <span class="n">np</span><span class="o">.</span><span class="n">finfo</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span><span class="o">.</span><span class="n">max</span><span class="p">:</span>
+                            <span class="n">col_dtype</span> <span class="o">=</span> <span class="s2">&quot;float32&quot;</span>
+                        <span class="k">else</span><span class="p">:</span>
+                            <span class="n">col_dtype</span> <span class="o">=</span> <span class="s2">&quot;float64&quot;</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">col_dtype</span> <span class="o">=</span> <span class="s2">&quot;category&quot;</span>
+
+                    <span class="k">if</span> <span class="n">output</span><span class="p">:</span>
+                        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;The best dtype for </span><span class="si">{</span><span class="n">col</span><span class="si">}</span><span class="s2"> is </span><span class="si">{</span><span class="n">col_dtype</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                        <span class="k">if</span> <span class="n">col_dtype</span> <span class="o">==</span> <span class="s1">&#39;int8&#39;</span><span class="p">:</span>
+                            <span class="k">if</span> <span class="bp">self</span><span class="p">[</span><span class="n">col</span><span class="p">]</span><span class="o">.</span><span class="n">nunique</span><span class="p">(</span><span class="n">dropna</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+                                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;But consider changing it to bool, has you have 2 unique values so you can map the numbers to be True or False&quot;</span><span class="p">)</span>
+                            <span class="k">if</span> <span class="n">convert</span><span class="p">:</span>
+                                <span class="bp">self</span><span class="p">[</span><span class="n">col</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="p">[</span><span class="n">col</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">col_dtype</span><span class="p">)</span>
+                    <span class="k">elif</span> <span class="n">show_df</span><span class="p">:</span>
+                        <span class="n">col_info</span> <span class="o">=</span> <span class="p">[</span><span class="n">col</span><span class="p">,</span> <span class="n">col_dtype</span><span class="p">]</span>
+                        <span class="n">dataframe</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">col_info</span><span class="p">)</span>
+                        <span class="k">if</span> <span class="n">convert</span><span class="p">:</span>
+                            <span class="bp">self</span><span class="p">[</span><span class="n">col</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="p">[</span><span class="n">col</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">col_dtype</span><span class="p">)</span>
+                    <span class="k">elif</span> <span class="n">convert</span><span class="p">:</span>
+                        <span class="bp">self</span><span class="p">[</span><span class="n">col</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="p">[</span><span class="n">col</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">col_dtype</span><span class="p">)</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="k">return</span> <span class="n">col_dtype</span>
+
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">col_dtype</span> <span class="o">=</span> <span class="s2">&quot;category&quot;</span>
+                    <span class="k">if</span> <span class="n">output</span><span class="p">:</span>
+                        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;The best dtype for </span><span class="si">{</span><span class="n">col</span><span class="si">}</span><span class="s2"> is </span><span class="si">{</span><span class="n">col_dtype</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                        <span class="k">if</span> <span class="bp">self</span><span class="p">[</span><span class="n">col</span><span class="p">]</span><span class="o">.</span><span class="n">nunique</span><span class="p">(</span><span class="n">dropna</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+                            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;But consider changing it to bool, has you have 2 unique values so you can map the numbers to be True or False&quot;</span><span class="p">)</span>
+                        <span class="k">if</span> <span class="n">convert</span><span class="p">:</span>
+                            <span class="bp">self</span><span class="p">[</span><span class="n">col</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="p">[</span><span class="n">col</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">col_dtype</span><span class="p">)</span>
+                    <span class="k">elif</span> <span class="n">show_df</span><span class="p">:</span>
+                        <span class="n">col_info</span> <span class="o">=</span> <span class="p">[</span><span class="n">col</span><span class="p">,</span> <span class="n">col_dtype</span><span class="p">]</span>
+                        <span class="n">dataframe</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">col_info</span><span class="p">)</span>
+                        <span class="k">if</span> <span class="n">convert</span><span class="p">:</span>
+                            <span class="bp">self</span><span class="p">[</span><span class="n">col</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="p">[</span><span class="n">col</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">col_dtype</span><span class="p">)</span>
+                    <span class="k">elif</span> <span class="n">convert</span><span class="p">:</span>
+                        <span class="bp">self</span><span class="p">[</span><span class="n">col</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="p">[</span><span class="n">col</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">col_dtype</span><span class="p">)</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="k">return</span> <span class="n">col_dtype</span>
+
+            <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Error on processing columm </span><span class="si">{</span><span class="n">col</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">show_df</span> <span class="ow">and</span> <span class="n">convert</span><span class="p">:</span>
+            <span class="n">dataframe</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">dataframe</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;Column_Name&quot;</span><span class="p">,</span> <span class="s2">&quot;Best_Dtype&quot;</span><span class="p">])</span>
+            <span class="n">dataframe</span> <span class="o">=</span> <span class="n">dataframe1</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">dataframe</span><span class="p">,</span> <span class="n">how</span><span class="o">=</span><span class="s2">&quot;inner&quot;</span><span class="p">,</span> <span class="n">on</span><span class="o">=</span><span class="s2">&quot;Column_Name&quot;</span><span class="p">)</span>
+            <span class="n">display</span><span class="p">(</span><span class="n">dataframe</span><span class="p">)</span>
+            <span class="k">return</span> <span class="bp">self</span>
+        <span class="k">elif</span> <span class="n">convert</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span>
+        <span class="k">elif</span> <span class="n">show_df</span><span class="p">:</span>
+            <span class="n">dataframe1</span> <span class="o">=</span> <span class="n">Statistics</span><span class="o">.</span><span class="n">get_cols_dtypes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">get_df</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="n">dataframe</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">dataframe</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;Column_Name&quot;</span><span class="p">,</span> <span class="s2">&quot;Best_Dtype&quot;</span><span class="p">])</span>
+            <span class="n">dataframe</span> <span class="o">=</span> <span class="n">dataframe1</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">dataframe</span><span class="p">,</span> <span class="n">how</span><span class="o">=</span><span class="s2">&quot;inner&quot;</span><span class="p">,</span> <span class="n">on</span><span class="o">=</span><span class="s2">&quot;Column_Name&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">dataframe</span></div>
+
+<div class="viewcode-block" id="Statistics.get_memory_usage">
+<a class="viewcode-back" href="../../suntzu.html#suntzu.statistics.Statistics.get_memory_usage">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_memory_usage</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cols</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">output</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">get_total</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">show_df</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">unit</span><span class="o">=</span><span class="s2">&quot;kb&quot;</span><span class="p">,</span> <span class="n">use_deep</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">get_dict</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Calculate the memory usage of each column in a DataFrame and provide options to display the results, calculate the total memory usage, and return the information as a DataFrame or dictionary.</span>
+
+<span class="sd">        Parameters:</span>
+<span class="sd">        - cols (optional): A list of column names to calculate the memory usage for. If not provided, memory usage will be calculated for all columns in the DataFrame.</span>
+<span class="sd">        - output (optional): A boolean flag indicating whether to print the memory usage for each column. Default is True.</span>
+<span class="sd">        - get_total (optional): A boolean flag indicating whether to calculate the total memory usage. Default is True.</span>
+<span class="sd">        - show_df (optional): A boolean flag indicating whether to return the memory usage as a DataFrame. Default is False.</span>
+<span class="sd">        - unit (optional): The unit of memory usage to be displayed. Supported values are &quot;kb&quot; (kilobytes), &quot;mb&quot; (megabytes), and &quot;b&quot; (bytes). Default is &quot;kb&quot;.</span>
+<span class="sd">        - use_deep (optional): A boolean flag indicating whether to include the memory usage of referenced objects. Default is True.</span>
+<span class="sd">        - get_dict (optional): A boolean flag indicating whether to return the memory usage as a dictionary. Default is False.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">        - If output parameter is True, the memory usage for each column will be printed.</span>
+<span class="sd">        - If get_total parameter is True, the total memory usage will be returned as a float.</span>
+<span class="sd">        - If show_df parameter is True, a DataFrame with the column names and memory usage will be returned.</span>
+<span class="sd">        - If get_dict parameter is True, a dictionary with the column names as keys and memory usage as values will be returned.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="n">cols</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">cols</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">columns</span>
+        <span class="n">supported_bytes</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;kb&quot;</span><span class="p">,</span> <span class="s2">&quot;mb&quot;</span><span class="p">,</span> <span class="s2">&quot;b&quot;</span><span class="p">]</span>
+        <span class="k">assert</span> <span class="n">unit</span> <span class="ow">in</span> <span class="n">supported_bytes</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">unit</span><span class="si">}</span><span class="s2"> not supported. Units supported is bytes(b), kilobytes(kb) and megabytes(mb).&quot;</span>
+        <span class="k">if</span> <span class="n">get_total</span><span class="p">:</span>
+            <span class="n">total</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">if</span> <span class="n">show_df</span><span class="p">:</span>
+            <span class="n">dataframe</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="n">output</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="k">if</span> <span class="n">get_dict</span><span class="p">:</span>
+            <span class="n">get_total</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="n">num_of_memory</span> <span class="o">=</span> <span class="p">{}</span>
+            <span class="n">num_of_memory</span><span class="o">.</span><span class="n">update</span><span class="p">([(</span><span class="s2">&quot;unit&quot;</span><span class="p">,</span> <span class="n">unit</span><span class="p">)])</span>
+        <span class="n">conversion_factors</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;kb&quot;</span><span class="p">:</span> <span class="mi">1024</span><span class="p">,</span>
+            <span class="s2">&quot;mb&quot;</span><span class="p">:</span> <span class="mi">1024</span><span class="o">**</span><span class="mi">2</span><span class="p">,</span>
+            <span class="s2">&quot;b&quot;</span><span class="p">:</span> <span class="mi">1</span>
+        <span class="p">}</span>
+        <span class="n">conversion_factor</span> <span class="o">=</span> <span class="n">conversion_factors</span><span class="p">[</span><span class="n">unit</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">cols</span><span class="p">:</span>
+            <span class="n">memory_usage</span> <span class="o">=</span> <span class="bp">self</span><span class="p">[</span><span class="n">col</span><span class="p">]</span><span class="o">.</span><span class="n">memory_usage</span><span class="p">(</span><span class="n">deep</span><span class="o">=</span><span class="n">use_deep</span><span class="p">)</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="nb">round</span><span class="p">(</span><span class="n">memory_usage</span> <span class="o">/</span> <span class="n">conversion_factor</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">output</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Column: </span><span class="si">{</span><span class="n">col</span><span class="si">}</span><span class="s2"> uses </span><span class="si">{</span><span class="n">value</span><span class="si">}{</span><span class="n">unit</span><span class="si">}</span><span class="s2">.&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">get_total</span><span class="p">:</span>
+                <span class="n">total</span> <span class="o">+=</span> <span class="n">value</span>   
+            <span class="k">if</span> <span class="n">show_df</span><span class="p">:</span>
+                <span class="n">col_info</span> <span class="o">=</span> <span class="p">[</span><span class="n">col</span><span class="p">,</span> <span class="n">value</span><span class="p">]</span>
+                <span class="n">dataframe</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">col_info</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">get_dict</span><span class="p">:</span>
+                <span class="n">num_of_memory</span><span class="o">.</span><span class="n">update</span><span class="p">([(</span><span class="n">col</span><span class="p">,</span> <span class="n">value</span><span class="p">)])</span>    
+        <span class="k">if</span> <span class="n">show_df</span><span class="p">:</span>
+            <span class="n">collums</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;Col_Name&quot;</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;Memory_Usage(</span><span class="si">{</span><span class="n">unit</span><span class="si">}</span><span class="s2">)&quot;</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">get_total</span><span class="p">:</span>
+                <span class="n">dataframe</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="s2">&quot;Total&quot;</span><span class="p">,</span> <span class="n">total</span><span class="p">])</span>
+            <span class="n">dataframe</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">dataframe</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="n">collums</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">get_total</span><span class="p">:</span>
+                <span class="n">n_rows</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span>
+                <span class="n">display</span><span class="p">(</span><span class="n">dataframe</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="n">n_rows</span><span class="p">))</span>
+                <span class="k">return</span> <span class="n">total</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">dataframe</span>
+        <span class="k">if</span> <span class="n">output</span><span class="p">:</span>   
+                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Total: </span><span class="si">{</span><span class="n">total</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">unit</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">get_total</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">total</span>
+        <span class="k">if</span> <span class="n">get_dict</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">num_of_memory</span></div>
+
+<div class="viewcode-block" id="Statistics.get_memory_usage_percentage">
+<a class="viewcode-back" href="../../suntzu.html#suntzu.statistics.Statistics.get_memory_usage_percentage">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_memory_usage_percentage</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cols</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">output</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">unit</span><span class="o">=</span><span class="s2">&quot;kb&quot;</span><span class="p">,</span> <span class="n">get_total</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">show_df</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">use_deep</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">get_dict</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Calculate the memory usage percentage of each column in a DataFrame.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            cols (list, optional): A list of column names. If not provided, all columns in the DataFrame will be considered.</span>
+<span class="sd">            output (bool, optional): Indicates whether to print the memory usage percentage for each column. Default is True.</span>
+<span class="sd">            unit (str, optional): The unit of memory usage to be displayed. Supported units are bytes (b), kilobytes (kb), and megabytes (mb). Default is kb.</span>
+<span class="sd">            get_total (bool, optional): Indicates whether to calculate the total memory usage percentage. Default is True.</span>
+<span class="sd">            show_df (bool, optional): Indicates whether to return a DataFrame with the column names and their memory usage percentages. Default is False.</span>
+<span class="sd">            use_deep (bool, optional): Indicates whether to use deep memory usage calculation. Default is True.</span>
+<span class="sd">            get_dict (bool, optional): Indicates whether to return a dictionary with column names as keys and their memory usage percentages as values. Default is False.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            float or DataFrame or None: Depending on the parameters, the method returns the total memory usage percentage as a float, a DataFrame with the column names and their memory usage percentages, or None.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">cols</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">cols</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">columns</span>
+        <span class="n">supported_bytes</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;kb&quot;</span><span class="p">,</span> <span class="s2">&quot;mb&quot;</span><span class="p">,</span> <span class="s2">&quot;b&quot;</span><span class="p">]</span>
+        <span class="k">assert</span> <span class="n">unit</span> <span class="ow">in</span> <span class="n">supported_bytes</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">unit</span><span class="si">}</span><span class="s2"> not supported. Units supported is bytes(b), kilobytes(kb) and megabytes(mb).&quot;</span>
+        <span class="k">if</span> <span class="n">get_total</span><span class="p">:</span>
+            <span class="n">total</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">if</span> <span class="n">show_df</span><span class="p">:</span>
+            <span class="n">dataframe</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="n">output</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="k">if</span> <span class="n">get_dict</span><span class="p">:</span>
+            <span class="n">get_total</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="n">percentage_of_memory</span> <span class="o">=</span> <span class="p">{}</span>
+            <span class="n">percentage_of_memory</span><span class="o">.</span><span class="n">update</span><span class="p">([(</span><span class="s2">&quot;unit&quot;</span><span class="p">,</span> <span class="n">unit</span><span class="p">)])</span>
+        <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">cols</span><span class="p">:</span>
+            <span class="n">total_usage</span> <span class="o">=</span> <span class="n">Statistics</span><span class="o">.</span><span class="n">get_memory_usage</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">output</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+            <span class="n">col_usage</span> <span class="o">=</span> <span class="n">Statistics</span><span class="o">.</span><span class="n">get_memory_usage</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="p">[</span><span class="n">col</span><span class="p">],</span> <span class="n">output</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">unit</span><span class="o">=</span><span class="n">unit</span><span class="p">,</span> <span class="n">use_deep</span><span class="o">=</span><span class="n">use_deep</span><span class="p">)</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="nb">round</span><span class="p">((</span><span class="n">col_usage</span><span class="o">/</span><span class="n">total_usage</span><span class="p">)</span> <span class="o">*</span> <span class="mi">100</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">output</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Column: </span><span class="si">{</span><span class="n">col</span><span class="si">}</span><span class="s2"> uses </span><span class="si">{</span><span class="n">value</span><span class="si">}{</span><span class="n">unit</span><span class="si">}</span><span class="s2">.&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">get_total</span><span class="p">:</span>
+                <span class="n">total</span> <span class="o">+=</span> <span class="n">value</span>   
+            <span class="k">if</span> <span class="n">show_df</span><span class="p">:</span>
+                <span class="n">col_info</span> <span class="o">=</span> <span class="p">[</span><span class="n">col</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">value</span><span class="si">}</span><span class="s2">%&quot;</span><span class="p">]</span>
+                <span class="n">dataframe</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">col_info</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">get_dict</span><span class="p">:</span>
+                <span class="n">percentage_of_memory</span><span class="o">.</span><span class="n">update</span><span class="p">([(</span><span class="n">col</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">value</span><span class="si">}</span><span class="s2">%&quot;</span><span class="p">)])</span>
+        <span class="k">if</span> <span class="n">show_df</span><span class="p">:</span>
+            <span class="n">collums</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;Col_Name&quot;</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;Percentage_of_Memory_Usage(</span><span class="si">{</span><span class="n">unit</span><span class="si">}</span><span class="s2">)&quot;</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">get_total</span><span class="p">:</span>
+                <span class="n">dataframe</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="s2">&quot;Total&quot;</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">total</span><span class="si">}</span><span class="s2">%&quot;</span><span class="p">])</span>
+            <span class="n">dataframe</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">dataframe</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="n">collums</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">get_total</span><span class="p">:</span>
+                <span class="n">n_rows</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span>
+                <span class="n">display</span><span class="p">(</span><span class="n">dataframe</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="n">n_rows</span><span class="p">))</span>
+                <span class="k">return</span> <span class="n">total</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">dataframe</span>
+        <span class="k">if</span> <span class="n">get_total</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">output</span><span class="p">:</span>   
+                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Total: </span><span class="si">{</span><span class="n">total</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">unit</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">total</span>
+        <span class="k">if</span> <span class="n">get_dict</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">output</span><span class="p">:</span>   
+                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Total: </span><span class="si">{</span><span class="n">total</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">unit</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">percentage_of_memory</span></div>
+
+<div class="viewcode-block" id="Statistics.get_nulls_count">
+<a class="viewcode-back" href="../../suntzu.html#suntzu.statistics.Statistics.get_nulls_count">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_nulls_count</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cols</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">output</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">show_df</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">get_total</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">get_dict</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Calculate the number of null values in each column of a DataFrame.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            cols (list, optional): A list of column names to calculate the number of null values for. If not provided, all columns in the DataFrame will be considered.</span>
+<span class="sd">            output (bool, optional): A boolean flag indicating whether to print the number of null values for each column. Default is True.</span>
+<span class="sd">            show_df (bool, optional): A boolean flag indicating whether to return a DataFrame with the column names and their corresponding null value counts. Default is False.</span>
+<span class="sd">            get_total (bool, optional): A boolean flag indicating whether to return the total number of null values in the DataFrame. Default is True.</span>
+<span class="sd">            get_dict (bool, optional): A boolean flag indicating whether to return a dictionary with column names as keys and their corresponding null value counts as values. Default is False.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            DataFrame or int or dict: Depending on the input parameters, the method returns:</span>
+<span class="sd">                - If show_df is True, a DataFrame with the column names and their corresponding null value counts.</span>
+<span class="sd">                - If get_total is True, the total number of null values in the DataFrame.</span>
+<span class="sd">                - If get_dict is True, a dictionary with column names as keys and their corresponding null value counts as values.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">cols</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">cols</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">columns</span>
+        <span class="k">if</span> <span class="n">get_total</span><span class="p">:</span>
+            <span class="n">total</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">if</span> <span class="n">show_df</span><span class="p">:</span>
+            <span class="n">dataframe</span> <span class="o">=</span> <span class="p">[]</span> 
+            <span class="n">output</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="k">if</span> <span class="n">get_dict</span><span class="p">:</span>
+            <span class="n">get_total</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="n">num_of_nulls</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">cols</span><span class="p">:</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="p">[</span><span class="n">col</span><span class="p">]</span><span class="o">.</span><span class="n">isnull</span><span class="p">()</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span> 
+            <span class="k">if</span> <span class="n">output</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;The number of null values in </span><span class="si">{</span><span class="n">col</span><span class="si">}</span><span class="s2"> is </span><span class="si">{</span><span class="n">value</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">get_total</span><span class="p">:</span>
+                <span class="n">total</span> <span class="o">+=</span> <span class="n">value</span>   
+            <span class="k">if</span> <span class="n">show_df</span><span class="p">:</span>
+                <span class="n">col_info</span> <span class="o">=</span> <span class="p">[</span><span class="n">col</span><span class="p">,</span> <span class="n">value</span><span class="p">]</span>
+                <span class="n">dataframe</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">col_info</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">get_dict</span><span class="p">:</span>
+                <span class="n">num_of_nulls</span><span class="o">.</span><span class="n">update</span><span class="p">([(</span><span class="n">col</span><span class="p">,</span> <span class="n">value</span><span class="p">)])</span>
+        <span class="k">if</span> <span class="n">show_df</span><span class="p">:</span>
+            <span class="n">collums</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;Col_Name&quot;</span><span class="p">,</span> <span class="s2">&quot;Null_Values&quot;</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">get_total</span><span class="p">:</span>
+                <span class="n">dataframe</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="s2">&quot;Total&quot;</span><span class="p">,</span> <span class="n">total</span><span class="p">])</span>
+            <span class="n">dataframe</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">dataframe</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="n">collums</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">get_total</span><span class="p">:</span>
+                <span class="n">n_rows</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">dataframe</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span>
+                <span class="n">display</span><span class="p">(</span><span class="n">dataframe</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="n">n_rows</span><span class="p">))</span>
+                <span class="k">return</span> <span class="n">total</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">dataframe</span>
+        <span class="k">if</span> <span class="n">get_total</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">output</span><span class="p">:</span>   
+                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;In this dataframe are missing a total </span><span class="si">{</span><span class="n">total</span><span class="si">}</span><span class="s2"> of null values.&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">total</span>
+        <span class="k">if</span> <span class="n">get_dict</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">num_of_nulls</span></div>
+
+
+<div class="viewcode-block" id="Statistics.get_null_percentage">
+<a class="viewcode-back" href="../../suntzu.html#suntzu.statistics.Statistics.get_null_percentage">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_null_percentage</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cols</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">output</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">show_df</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">get_total</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">get_dict</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Calculate the percentage of null values in each column of a DataFrame.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            cols (list, optional): A list of column names. If not provided, all columns in the DataFrame will be considered.</span>
+<span class="sd">            output (bool, optional): Indicates whether to print the percentage of null values in each column. Default is True.</span>
+<span class="sd">            show_df (bool, optional): Indicates whether to return a DataFrame with the column names and their percentage of null values. Default is False.</span>
+<span class="sd">            get_total (bool, optional): Indicates whether to return the total percentage of null values in the DataFrame. Default is True.</span>
+<span class="sd">            get_dict (bool, optional): Indicates whether to return a dictionary with column names as keys and their corresponding percentage of null values as values. Default is False.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            If output is True, the percentage of null values in each column is printed.</span>
+<span class="sd">            If show_df is True, a DataFrame with the column names and their percentage of null values is returned.</span>
+<span class="sd">            If get_total is True, the total percentage of null values in the DataFrame is returned.</span>
+<span class="sd">            If get_dict is True, a dictionary with column names as keys and their corresponding percentage of null values as values is returned.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">cols</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">cols</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">columns</span>
+        <span class="k">if</span> <span class="n">get_total</span><span class="p">:</span>
+            <span class="n">total</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">if</span> <span class="n">show_df</span><span class="p">:</span>
+            <span class="n">dataframe</span> <span class="o">=</span> <span class="p">[]</span> 
+            <span class="n">output</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="k">if</span> <span class="n">get_dict</span><span class="p">:</span>
+            <span class="n">get_total</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="n">percentage_of_nulls</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">cols</span><span class="p">:</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="nb">round</span><span class="p">((</span><span class="n">Statistics</span><span class="o">.</span><span class="n">get_nulls_count</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="p">[</span><span class="n">col</span><span class="p">],</span> <span class="kc">False</span><span class="p">)</span><span class="o">/</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="p">[</span><span class="n">col</span><span class="p">]))</span> <span class="o">*</span> <span class="mi">100</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">output</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;The percentage of null values in </span><span class="si">{</span><span class="n">col</span><span class="si">}</span><span class="s2"> is </span><span class="si">{</span><span class="n">value</span><span class="si">}</span><span class="s2">%&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">get_total</span><span class="p">:</span>
+                <span class="n">total</span> <span class="o">+=</span> <span class="n">value</span>   
+            <span class="k">if</span> <span class="n">show_df</span><span class="p">:</span>
+                <span class="n">col_info</span> <span class="o">=</span> <span class="p">[</span><span class="n">col</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">value</span><span class="si">}</span><span class="s2">%&quot;</span><span class="p">]</span>
+                <span class="n">dataframe</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">col_info</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">get_dict</span><span class="p">:</span>
+                <span class="n">percentage_of_nulls</span><span class="o">.</span><span class="n">update</span><span class="p">([(</span><span class="n">col</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">value</span><span class="si">}</span><span class="s2">%&quot;</span><span class="p">)])</span>
+        <span class="k">if</span> <span class="n">show_df</span><span class="p">:</span>
+            <span class="n">collums</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;Col_Name&quot;</span><span class="p">,</span> <span class="s2">&quot;Percentage_of_Null_Values&quot;</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">get_total</span><span class="p">:</span>
+                <span class="n">dataframe</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="s2">&quot;Total&quot;</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">total</span><span class="si">}</span><span class="s2">%&quot;</span><span class="p">])</span>
+            <span class="n">dataframe</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">dataframe</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="n">collums</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">get_total</span><span class="p">:</span>
+                <span class="n">n_rows</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span>
+                <span class="n">display</span><span class="p">(</span><span class="n">dataframe</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="n">n_rows</span><span class="p">))</span>
+                <span class="k">return</span> <span class="n">total</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">dataframe</span>
+        <span class="k">elif</span> <span class="n">get_total</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">output</span><span class="p">:</span>   
+                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">total</span><span class="si">}</span><span class="s2">% of the values in this dataframe are missing.&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">total</span>
+        <span class="k">elif</span> <span class="n">get_dict</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">percentage_of_nulls</span></div>
+
+<div class="viewcode-block" id="Statistics.get_num_of_unique_values">
+<a class="viewcode-back" href="../../suntzu.html#suntzu.statistics.Statistics.get_num_of_unique_values">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_num_of_unique_values</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cols</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">output</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">show_df</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Calculate the number of unique values in specified columns of a DataFrame.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            cols (list, optional): A list of column names. If not provided, all columns in the DataFrame will be considered.</span>
+<span class="sd">            output (bool, optional): A boolean flag indicating whether to print the number of unique values. Default is True.</span>
+<span class="sd">            show_df (bool, optional): A boolean flag indicating whether to return a DataFrame with the column names and their corresponding number of unique values. Default is False.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            dict or DataFrame: If `show_df` is True, a DataFrame is returned with the column names and their corresponding number of unique values.</span>
+<span class="sd">                               Otherwise, a dictionary is returned with the column names as keys and the number of unique values as values.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="n">cols</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">cols</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">columns</span>
+        <span class="k">if</span> <span class="n">show_df</span><span class="p">:</span>
+            <span class="n">dataframe</span> <span class="o">=</span> <span class="p">[]</span>  
+            <span class="n">output</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="n">num_of_uniques</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">cols</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">num_unique_values</span> <span class="o">=</span> <span class="bp">self</span><span class="p">[</span><span class="n">col</span><span class="p">]</span><span class="o">.</span><span class="n">nunique</span><span class="p">()</span>
+                <span class="n">num_of_uniques</span><span class="o">.</span><span class="n">update</span><span class="p">([(</span><span class="n">col</span><span class="p">,</span> <span class="n">num_unique_values</span><span class="p">)])</span>
+                <span class="k">if</span> <span class="n">output</span><span class="p">:</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;The number of unique values in </span><span class="si">{</span><span class="n">col</span><span class="si">}</span><span class="s2"> is </span><span class="si">{</span><span class="n">num_unique_values</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">show_df</span><span class="p">:</span>
+                    <span class="n">col_info</span> <span class="o">=</span> <span class="p">[</span><span class="n">col</span><span class="p">,</span> <span class="n">num_unique_values</span><span class="p">]</span>
+                    <span class="n">dataframe</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">col_info</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Column </span><span class="si">{</span><span class="n">col</span><span class="si">}</span><span class="s2"> does not exist in the DataFrame.&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">show_df</span><span class="p">:</span>
+            <span class="n">columns</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;Col_Name&quot;</span><span class="p">,</span> <span class="s2">&quot;Unique_Values&quot;</span><span class="p">]</span>
+            <span class="n">dataframe</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">dataframe</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="n">columns</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">dataframe</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">num_of_uniques</span></div>
+
+<div class="viewcode-block" id="Statistics.get_max_values">
+<a class="viewcode-back" href="../../suntzu.html#suntzu.statistics.Statistics.get_max_values">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_max_values</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cols</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">output</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">show_df</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Find the maximum values or the most common values in each column of a DataFrame.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            cols (list, optional): A list of column names. If not provided, all columns in the DataFrame will be considered.</span>
+<span class="sd">            output (bool, optional): Indicates whether to print the maximum values. Default is True.</span>
+<span class="sd">            show_df (bool, optional): Indicates whether to return a DataFrame with the column names and their maximum values. Default is False.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            dict or DataFrame: If show_df is False, a dictionary is returned with column names as keys and their corresponding maximum values or most common values as values.</span>
+<span class="sd">                               If show_df is True, a DataFrame is returned with the column names and their maximum values or most common values.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">cols</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">cols</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">columns</span>
+        <span class="n">max_values</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">cols</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">pd</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">types</span><span class="o">.</span><span class="n">is_categorical_dtype</span><span class="p">(</span><span class="bp">self</span><span class="p">[</span><span class="n">col</span><span class="p">])</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">pd</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">types</span><span class="o">.</span><span class="n">is_bool_dtype</span><span class="p">(</span><span class="bp">self</span><span class="p">[</span><span class="n">col</span><span class="p">]):</span>
+                    <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="p">[</span><span class="n">col</span><span class="p">]</span><span class="o">.</span><span class="n">max</span><span class="p">()</span>
+                    <span class="n">max_values</span><span class="o">.</span><span class="n">update</span><span class="p">([(</span><span class="n">col</span><span class="p">,</span> <span class="n">value</span><span class="p">)])</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="p">[</span><span class="n">col</span><span class="p">]</span><span class="o">.</span><span class="n">mode</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span>
+                    <span class="n">max_values</span><span class="o">.</span><span class="n">update</span><span class="p">([(</span><span class="n">col</span><span class="p">,</span> <span class="n">value</span><span class="p">)])</span>
+                <span class="k">if</span> <span class="n">output</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="ow">not</span> <span class="n">pd</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">types</span><span class="o">.</span><span class="n">is_categorical_dtype</span><span class="p">(</span><span class="bp">self</span><span class="p">[</span><span class="n">col</span><span class="p">])</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">pd</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">types</span><span class="o">.</span><span class="n">is_bool_dtype</span><span class="p">(</span><span class="bp">self</span><span class="p">[</span><span class="n">col</span><span class="p">]):</span>
+                        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;The maximum value in </span><span class="si">{</span><span class="n">col</span><span class="si">}</span><span class="s2"> is </span><span class="si">{</span><span class="n">value</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;The most common value in </span><span class="si">{</span><span class="n">col</span><span class="si">}</span><span class="s2"> is </span><span class="si">{</span><span class="n">value</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Column </span><span class="si">{</span><span class="n">col</span><span class="si">}</span><span class="s2"> does not exist in the DataFrame.&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">show_df</span><span class="p">:</span>
+            <span class="n">dataframe</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">cols</span><span class="p">:</span>
+                <span class="n">col_info</span> <span class="o">=</span> <span class="p">[</span><span class="n">col</span><span class="p">,</span> <span class="n">max_values</span><span class="p">[</span><span class="n">col</span><span class="p">]]</span>
+                <span class="n">dataframe</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">col_info</span><span class="p">)</span>
+            <span class="n">columns</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;Col_Name&quot;</span><span class="p">,</span> <span class="s2">&quot;Max_Values/Most_Common&quot;</span><span class="p">]</span>
+            <span class="n">dataframe</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">dataframe</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="n">columns</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">dataframe</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">max_values</span></div>
+
+<div class="viewcode-block" id="Statistics.get_max_values_count">
+<a class="viewcode-back" href="../../suntzu.html#suntzu.statistics.Statistics.get_max_values_count">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_max_values_count</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cols</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">output</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">show_df</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns the number of occurrences of the maximum value or the most common value in each column of a DataFrame.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            cols (list, optional): A list of column names. If not provided, all columns in the DataFrame will be considered.</span>
+<span class="sd">            output (bool, optional): Indicates whether to print the number of occurrences of the maximum value or the most common value in each column. Default is True.</span>
+<span class="sd">            show_df (bool, optional): Indicates whether to return a DataFrame with the column names and the number of occurrences of the maximum value or the most common value. Default is False.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            DataFrame or dict: If show_df is True, returns a DataFrame with the column names and the number of occurrences of the maximum value or the most common value. Otherwise, returns a dictionary with the column names as keys and the number of occurrences of the maximum value or the most common value as values.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">cols</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">cols</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">columns</span>
+        <span class="n">max_values_count</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">cols</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">pd</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">types</span><span class="o">.</span><span class="n">is_categorical_dtype</span><span class="p">(</span><span class="bp">self</span><span class="p">[</span><span class="n">col</span><span class="p">])</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">pd</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">types</span><span class="o">.</span><span class="n">is_bool_dtype</span><span class="p">(</span><span class="bp">self</span><span class="p">[</span><span class="n">col</span><span class="p">]):</span>
+                    <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="p">[</span><span class="n">col</span><span class="p">]</span><span class="o">.</span><span class="n">max</span><span class="p">()</span>
+                    <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="p">[</span><span class="n">col</span><span class="p">]</span><span class="o">.</span><span class="n">eq</span><span class="p">(</span><span class="n">value</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>  
+                    <span class="n">max_values_count</span><span class="o">.</span><span class="n">update</span><span class="p">([(</span><span class="n">col</span><span class="p">,</span> <span class="n">value</span><span class="p">)])</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="p">[</span><span class="n">col</span><span class="p">]</span><span class="o">.</span><span class="n">value_counts</span><span class="p">()</span><span class="o">.</span><span class="n">iat</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>  
+                    <span class="n">max_values_count</span><span class="o">.</span><span class="n">update</span><span class="p">([(</span><span class="n">col</span><span class="p">,</span> <span class="n">value</span><span class="p">)])</span>
+                <span class="k">if</span> <span class="n">output</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="ow">not</span> <span class="n">pd</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">types</span><span class="o">.</span><span class="n">is_categorical_dtype</span><span class="p">(</span><span class="bp">self</span><span class="p">[</span><span class="n">col</span><span class="p">])</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">pd</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">types</span><span class="o">.</span><span class="n">is_bool_dtype</span><span class="p">(</span><span class="bp">self</span><span class="p">[</span><span class="n">col</span><span class="p">]):</span>
+                        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;The number of ocurrences of the max value in </span><span class="si">{</span><span class="n">col</span><span class="si">}</span><span class="s2"> is </span><span class="si">{</span><span class="n">value</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;The number of ocurrences of the most common value in </span><span class="si">{</span><span class="n">col</span><span class="si">}</span><span class="s2"> is </span><span class="si">{</span><span class="n">value</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Column </span><span class="si">{</span><span class="n">col</span><span class="si">}</span><span class="s2"> does not exist in the DataFrame.&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">show_df</span><span class="p">:</span>
+            <span class="n">dataframe</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">cols</span><span class="p">:</span>
+                <span class="n">col_info</span> <span class="o">=</span> <span class="p">[</span><span class="n">col</span><span class="p">,</span> <span class="n">max_values_count</span><span class="p">[</span><span class="n">col</span><span class="p">]]</span>
+                <span class="n">dataframe</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">col_info</span><span class="p">)</span>
+            <span class="n">columns</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;Col_Name&quot;</span><span class="p">,</span> <span class="s2">&quot;Max_Values/Most_Common Count&quot;</span><span class="p">]</span>
+            <span class="n">dataframe</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">dataframe</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="n">columns</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">dataframe</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">max_values_count</span></div>
+
+<div class="viewcode-block" id="Statistics.get_max_values_percentage">
+<a class="viewcode-back" href="../../suntzu.html#suntzu.statistics.Statistics.get_max_values_percentage">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_max_values_percentage</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cols</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">output</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">show_df</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Calculates the percentage of the maximum value or the most common value in each column of a DataFrame.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            cols (list, optional): A list of column names. If not provided, all columns in the DataFrame will be considered.</span>
+<span class="sd">            output (bool, optional): Indicates whether to print the percentage of the maximum value or the most common value. Default is True.</span>
+<span class="sd">            show_df (bool, optional): Indicates whether to return a DataFrame with the column names and their corresponding percentages. Default is False.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            dict or DataFrame: If `show_df` is True, it returns a DataFrame with the column names and their corresponding percentages. </span>
+<span class="sd">                               Otherwise, it returns a dictionary with column names as keys and their corresponding percentages as values.</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            KeyError: If a column specified in `cols` does not exist in the DataFrame.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">cols</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">cols</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">columns</span>
+        <span class="n">max_values_percentage</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">cols</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">pd</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">types</span><span class="o">.</span><span class="n">is_categorical_dtype</span><span class="p">(</span><span class="bp">self</span><span class="p">[</span><span class="n">col</span><span class="p">])</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">pd</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">types</span><span class="o">.</span><span class="n">is_bool_dtype</span><span class="p">(</span><span class="bp">self</span><span class="p">[</span><span class="n">col</span><span class="p">]):</span>
+                    <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="p">[</span><span class="n">col</span><span class="p">]</span><span class="o">.</span><span class="n">max</span><span class="p">()</span>
+                    <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="p">[</span><span class="n">col</span><span class="p">]</span><span class="o">.</span><span class="n">eq</span><span class="p">(</span><span class="n">value</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+                    <span class="n">value</span> <span class="o">=</span> <span class="p">(</span><span class="n">value</span> <span class="o">/</span> <span class="bp">self</span><span class="p">[</span><span class="n">col</span><span class="p">]</span><span class="o">.</span><span class="n">count</span><span class="p">())</span> <span class="o">*</span> <span class="mi">100</span>
+                    <span class="n">value</span> <span class="o">=</span> <span class="nb">round</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+                    <span class="n">max_values_percentage</span><span class="o">.</span><span class="n">update</span><span class="p">([(</span><span class="n">col</span><span class="p">,</span> <span class="n">value</span><span class="p">)])</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="p">[</span><span class="n">col</span><span class="p">]</span><span class="o">.</span><span class="n">value_counts</span><span class="p">()</span><span class="o">.</span><span class="n">iat</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                    <span class="n">value</span> <span class="o">=</span> <span class="p">(</span><span class="n">value</span> <span class="o">/</span> <span class="bp">self</span><span class="p">[</span><span class="n">col</span><span class="p">]</span><span class="o">.</span><span class="n">count</span><span class="p">())</span> <span class="o">*</span> <span class="mi">100</span>
+                    <span class="n">value</span> <span class="o">=</span> <span class="nb">round</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+                    <span class="n">max_values_percentage</span><span class="o">.</span><span class="n">update</span><span class="p">([(</span><span class="n">col</span><span class="p">,</span> <span class="n">value</span><span class="p">)])</span>
+                <span class="k">if</span> <span class="n">output</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="ow">not</span> <span class="n">pd</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">types</span><span class="o">.</span><span class="n">is_categorical_dtype</span><span class="p">(</span><span class="bp">self</span><span class="p">[</span><span class="n">col</span><span class="p">])</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">pd</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">types</span><span class="o">.</span><span class="n">is_bool_dtype</span><span class="p">(</span><span class="bp">self</span><span class="p">[</span><span class="n">col</span><span class="p">]):</span>
+                        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;The percentage of max value in </span><span class="si">{</span><span class="n">col</span><span class="si">}</span><span class="s2"> is </span><span class="si">{</span><span class="n">value</span><span class="si">}</span><span class="s2"> %&quot;</span><span class="p">)</span>
+                        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Tip: It&#39;s possible for the percentage of max values being lower than the percentage of min values. So don&#39;t take this function seriously if you are using it for numerical columns.&quot;</span><span class="p">)</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;The percentage of most common value in </span><span class="si">{</span><span class="n">col</span><span class="si">}</span><span class="s2"> is </span><span class="si">{</span><span class="n">value</span><span class="si">}</span><span class="s2"> %&quot;</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Column </span><span class="si">{</span><span class="n">col</span><span class="si">}</span><span class="s2"> does not exist in the DataFrame.&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">show_df</span><span class="p">:</span>
+            <span class="n">dataframe</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">cols</span><span class="p">:</span>
+                <span class="n">col_info</span> <span class="o">=</span> <span class="p">[</span><span class="n">col</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">max_values_percentage</span><span class="p">[</span><span class="n">col</span><span class="p">]</span><span class="si">}</span><span class="s2">%&quot;</span><span class="p">]</span>
+                <span class="n">dataframe</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">col_info</span><span class="p">)</span>
+            <span class="n">columns</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;Col_Name&quot;</span><span class="p">,</span> <span class="s2">&quot;Max_Values/Most_Common Percentage&quot;</span><span class="p">]</span>
+            <span class="n">dataframe</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">dataframe</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="n">columns</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">dataframe</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">max_values_percentage</span></div>
+
+<div class="viewcode-block" id="Statistics.get_min_values">
+<a class="viewcode-back" href="../../suntzu.html#suntzu.statistics.Statistics.get_min_values">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_min_values</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cols</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">output</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">show_df</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Retrieve the minimum values for specified columns in a DataFrame.</span>
+<span class="sd">    </span>
+<span class="sd">        Args:</span>
+<span class="sd">            cols (list, optional): A list of column names for which the minimum values should be retrieved. </span>
+<span class="sd">                If not provided, the method will consider all columns in the DataFrame.</span>
+<span class="sd">            output (bool, optional): A boolean flag indicating whether to print the minimum values for each column. </span>
+<span class="sd">                Default is True.</span>
+<span class="sd">            show_df (bool, optional): A boolean flag indicating whether to return the result as a DataFrame. </span>
+<span class="sd">                Default is False.</span>
+<span class="sd">    </span>
+<span class="sd">        Returns:</span>
+<span class="sd">            dict or DataFrame: If show_df is False, the method returns a dictionary with column names as keys </span>
+<span class="sd">                and their corresponding minimum values as values. If show_df is True, the method returns a DataFrame </span>
+<span class="sd">                with two columns: &quot;Col_Name&quot; and &quot;Min_Values/Less_Common&quot;, containing the column names and their </span>
+<span class="sd">                minimum values.</span>
+<span class="sd">    </span>
+<span class="sd">        Raises:</span>
+<span class="sd">            KeyError: If a specified column does not exist in the DataFrame.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">cols</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">cols</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">columns</span>
+        <span class="n">min_values</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">cols</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">pd</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">types</span><span class="o">.</span><span class="n">is_categorical_dtype</span><span class="p">(</span><span class="bp">self</span><span class="p">[</span><span class="n">col</span><span class="p">])</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">pd</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">types</span><span class="o">.</span><span class="n">is_bool_dtype</span><span class="p">(</span><span class="bp">self</span><span class="p">[</span><span class="n">col</span><span class="p">]):</span>
+                    <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="p">[</span><span class="n">col</span><span class="p">]</span><span class="o">.</span><span class="n">min</span><span class="p">()</span>
+                    <span class="n">min_values</span><span class="o">.</span><span class="n">update</span><span class="p">([(</span><span class="n">col</span><span class="p">,</span> <span class="n">value</span><span class="p">)])</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="p">[</span><span class="n">col</span><span class="p">]</span><span class="o">.</span><span class="n">value_counts</span><span class="p">()</span>
+                    <span class="n">value</span> <span class="o">=</span> <span class="n">value</span><span class="o">.</span><span class="n">index</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+                    <span class="n">min_values</span><span class="o">.</span><span class="n">update</span><span class="p">([(</span><span class="n">col</span><span class="p">,</span> <span class="n">value</span><span class="p">)])</span>
+                <span class="k">if</span> <span class="n">output</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="ow">not</span> <span class="n">pd</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">types</span><span class="o">.</span><span class="n">is_categorical_dtype</span><span class="p">(</span><span class="bp">self</span><span class="p">[</span><span class="n">col</span><span class="p">])</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">pd</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">types</span><span class="o">.</span><span class="n">is_bool_dtype</span><span class="p">(</span><span class="bp">self</span><span class="p">[</span><span class="n">col</span><span class="p">]):</span>
+                        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;The minimum value in </span><span class="si">{</span><span class="n">col</span><span class="si">}</span><span class="s2"> is </span><span class="si">{</span><span class="n">value</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;The less common value in </span><span class="si">{</span><span class="n">col</span><span class="si">}</span><span class="s2"> is </span><span class="si">{</span><span class="n">value</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Column </span><span class="si">{</span><span class="n">col</span><span class="si">}</span><span class="s2"> does not exist in the DataFrame.&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">show_df</span><span class="p">:</span>
+            <span class="n">dataframe</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">cols</span><span class="p">:</span>
+                <span class="n">col_info</span> <span class="o">=</span> <span class="p">[</span><span class="n">col</span><span class="p">,</span> <span class="n">min_values</span><span class="p">[</span><span class="n">col</span><span class="p">]]</span>
+                <span class="n">dataframe</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">col_info</span><span class="p">)</span>
+            <span class="n">columns</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;Col_Name&quot;</span><span class="p">,</span> <span class="s2">&quot;Min_Values/Less_Common&quot;</span><span class="p">]</span>
+            <span class="n">dataframe</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">dataframe</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="n">columns</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">dataframe</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">min_values</span></div>
+
+<div class="viewcode-block" id="Statistics.get_min_values_count">
+<a class="viewcode-back" href="../../suntzu.html#suntzu.statistics.Statistics.get_min_values_count">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_min_values_count</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cols</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">output</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">show_df</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Calculate the count of the minimum values or the count of the less common values in each column of a DataFrame.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            cols (list, optional): A list of column names. If not provided, all columns in the DataFrame will be considered.</span>
+<span class="sd">            output (bool, optional): A boolean flag indicating whether to print the count of the minimum values or less common values. Default is True.</span>
+<span class="sd">            show_df (bool, optional): A boolean flag indicating whether to return a DataFrame with the column names and their corresponding counts. Default is False.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            dict or DataFrame: If show_df is False, returns a dictionary with column names as keys and their corresponding counts as values.</span>
+<span class="sd">                               If show_df is True, returns a DataFrame with the column names and their corresponding counts.</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            KeyError: If a column specified in cols does not exist in the DataFrame.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">cols</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">cols</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">columns</span>
+        <span class="n">min_values_count</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">cols</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">pd</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">types</span><span class="o">.</span><span class="n">is_categorical_dtype</span><span class="p">(</span><span class="bp">self</span><span class="p">[</span><span class="n">col</span><span class="p">])</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">pd</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">types</span><span class="o">.</span><span class="n">is_bool_dtype</span><span class="p">(</span><span class="bp">self</span><span class="p">[</span><span class="n">col</span><span class="p">]):</span>
+                    <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="p">[</span><span class="n">col</span><span class="p">]</span><span class="o">.</span><span class="n">min</span><span class="p">()</span>
+                    <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="p">[</span><span class="n">col</span><span class="p">]</span><span class="o">.</span><span class="n">eq</span><span class="p">(</span><span class="n">value</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+                    <span class="n">min_values_count</span><span class="o">.</span><span class="n">update</span><span class="p">([(</span><span class="n">col</span><span class="p">,</span> <span class="n">value</span><span class="p">)])</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="p">[</span><span class="n">col</span><span class="p">]</span><span class="o">.</span><span class="n">value_counts</span><span class="p">()</span><span class="o">.</span><span class="n">iat</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+                    <span class="n">min_values_count</span><span class="o">.</span><span class="n">update</span><span class="p">([(</span><span class="n">col</span><span class="p">,</span> <span class="n">value</span><span class="p">)])</span>
+                <span class="k">if</span> <span class="n">output</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="ow">not</span> <span class="n">pd</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">types</span><span class="o">.</span><span class="n">is_categorical_dtype</span><span class="p">(</span><span class="bp">self</span><span class="p">[</span><span class="n">col</span><span class="p">])</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">pd</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">types</span><span class="o">.</span><span class="n">is_bool_dtype</span><span class="p">(</span><span class="bp">self</span><span class="p">[</span><span class="n">col</span><span class="p">]):</span>
+                        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;The number of ocurrences of the min value in </span><span class="si">{</span><span class="n">col</span><span class="si">}</span><span class="s2"> is </span><span class="si">{</span><span class="n">value</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;The number of ocurrences of the less common value in </span><span class="si">{</span><span class="n">col</span><span class="si">}</span><span class="s2"> is </span><span class="si">{</span><span class="n">value</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Column </span><span class="si">{</span><span class="n">col</span><span class="si">}</span><span class="s2"> does not exist in the DataFrame.&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">show_df</span><span class="p">:</span>
+            <span class="n">dataframe</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">cols</span><span class="p">:</span>
+                <span class="n">col_info</span> <span class="o">=</span> <span class="p">[</span><span class="n">col</span><span class="p">,</span> <span class="n">min_values_count</span><span class="p">[</span><span class="n">col</span><span class="p">]]</span>
+                <span class="n">dataframe</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">col_info</span><span class="p">)</span>
+            <span class="n">columns</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;Col_Name&quot;</span><span class="p">,</span> <span class="s2">&quot;Min_Values/Less_Common Count&quot;</span><span class="p">]</span>
+            <span class="n">dataframe</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">dataframe</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="n">columns</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">dataframe</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">min_values_count</span></div>
+
+<div class="viewcode-block" id="Statistics.get_min_values_percentage">
+<a class="viewcode-back" href="../../suntzu.html#suntzu.statistics.Statistics.get_min_values_percentage">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_min_values_percentage</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cols</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">output</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">show_df</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Calculates the percentage of the minimum value or the percentage of the less common value in each column of a DataFrame.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            cols (list, optional): A list of column names. If not provided, all columns in the DataFrame will be considered.</span>
+<span class="sd">            output (bool, optional): Indicates whether to print the percentage of the minimum value or the less common value in each column. Default is True.</span>
+<span class="sd">            show_df (bool, optional): Indicates whether to return a DataFrame with the column names and their corresponding percentages. Default is False.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            dict or DataFrame: If `show_df` is True, returns a DataFrame with the column names and their corresponding percentages. </span>
+<span class="sd">                               If `show_df` is False, returns a dictionary with the column names as keys and their corresponding percentages as values.</span>
+<span class="sd">                               If `output` is True, prints the percentage of the minimum value or the less common value in each column.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">cols</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">cols</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">columns</span>
+        <span class="n">min_values_percentage</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">cols</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">pd</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">types</span><span class="o">.</span><span class="n">is_categorical_dtype</span><span class="p">(</span><span class="bp">self</span><span class="p">[</span><span class="n">col</span><span class="p">])</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">pd</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">types</span><span class="o">.</span><span class="n">is_bool_dtype</span><span class="p">(</span><span class="bp">self</span><span class="p">[</span><span class="n">col</span><span class="p">]):</span>
+                    <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="p">[</span><span class="n">col</span><span class="p">]</span><span class="o">.</span><span class="n">min</span><span class="p">()</span>
+                    <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="p">[</span><span class="n">col</span><span class="p">]</span><span class="o">.</span><span class="n">eq</span><span class="p">(</span><span class="n">value</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+                    <span class="n">value</span> <span class="o">=</span> <span class="p">(</span><span class="n">value</span> <span class="o">/</span> <span class="bp">self</span><span class="p">[</span><span class="n">col</span><span class="p">]</span><span class="o">.</span><span class="n">count</span><span class="p">())</span> <span class="o">*</span> <span class="mi">100</span>
+                    <span class="n">value</span> <span class="o">=</span> <span class="nb">round</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+                    <span class="n">min_values_percentage</span><span class="o">.</span><span class="n">update</span><span class="p">([(</span><span class="n">col</span><span class="p">,</span> <span class="n">value</span><span class="p">)])</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="p">[</span><span class="n">col</span><span class="p">]</span><span class="o">.</span><span class="n">value_counts</span><span class="p">()</span><span class="o">.</span><span class="n">iat</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+                    <span class="n">value</span> <span class="o">=</span> <span class="p">(</span><span class="n">value</span> <span class="o">/</span> <span class="bp">self</span><span class="p">[</span><span class="n">col</span><span class="p">]</span><span class="o">.</span><span class="n">count</span><span class="p">())</span> <span class="o">*</span> <span class="mi">100</span>
+                    <span class="n">value</span> <span class="o">=</span> <span class="nb">round</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+                    <span class="n">min_values_percentage</span><span class="o">.</span><span class="n">update</span><span class="p">([(</span><span class="n">col</span><span class="p">,</span> <span class="n">value</span><span class="p">)])</span>
+                <span class="k">if</span> <span class="n">output</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="ow">not</span> <span class="n">pd</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">types</span><span class="o">.</span><span class="n">is_categorical_dtype</span><span class="p">(</span><span class="bp">self</span><span class="p">[</span><span class="n">col</span><span class="p">])</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">pd</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">types</span><span class="o">.</span><span class="n">is_bool_dtype</span><span class="p">(</span><span class="bp">self</span><span class="p">[</span><span class="n">col</span><span class="p">]):</span>
+                        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;The percentage of min value in </span><span class="si">{</span><span class="n">col</span><span class="si">}</span><span class="s2"> is </span><span class="si">{</span><span class="n">value</span><span class="si">}</span><span class="s2"> %&quot;</span><span class="p">)</span>
+                        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Tip: It&#39;s possible for the percentage of max values being lower than the percentage of min values. So don&#39;t take this function seriously if you are using it for numerical columns.&quot;</span><span class="p">)</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;The percentage of less common value in </span><span class="si">{</span><span class="n">col</span><span class="si">}</span><span class="s2"> is </span><span class="si">{</span><span class="n">value</span><span class="si">}</span><span class="s2"> %&quot;</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Column </span><span class="si">{</span><span class="n">col</span><span class="si">}</span><span class="s2"> does not exist in the DataFrame.&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">show_df</span><span class="p">:</span>
+            <span class="n">dataframe</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">cols</span><span class="p">:</span>
+                <span class="n">col_info</span> <span class="o">=</span> <span class="p">[</span><span class="n">col</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">min_values_percentage</span><span class="p">[</span><span class="n">col</span><span class="p">]</span><span class="si">}</span><span class="s2">%&quot;</span><span class="p">]</span>
+                <span class="n">dataframe</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">col_info</span><span class="p">)</span>
+            <span class="n">columns</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;Col_Name&quot;</span><span class="p">,</span> <span class="s2">&quot;Min_Values/Less_Common Percentage&quot;</span><span class="p">]</span>
+            <span class="n">dataframe</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">dataframe</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="n">columns</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">dataframe</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">min_values_percentage</span></div>
+
+<div class="viewcode-block" id="Statistics.get_dataframe_mem_insight">
+<a class="viewcode-back" href="../../suntzu.html#suntzu.statistics.Statistics.get_dataframe_mem_insight">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_dataframe_mem_insight</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">transpose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Generate memory insights for each column in a given dataframe.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            self (pandas.DataFrame): The dataframe for which memory insights are to be generated.</span>
+<span class="sd">            transpose (bool, optional): A flag indicating whether the resulting dataframe should be transposed. Default is False.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            pandas.DataFrame: A dataframe containing information such as column name, data type, recommended data type, memory usage, number of missing values, percentage of missing values, and number of distinct values.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">dataframe</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+            <span class="n">col_info</span> <span class="o">=</span> <span class="p">[</span>
+                <span class="n">col</span><span class="p">,</span>
+                <span class="nb">str</span><span class="p">(</span><span class="n">Statistics</span><span class="o">.</span><span class="n">get_dtypes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="p">[</span><span class="n">col</span><span class="p">],</span> <span class="kc">False</span><span class="p">))</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="s2">&quot;[]&#39;&quot;</span><span class="p">),</span>
+                <span class="n">Statistics</span><span class="o">.</span><span class="n">get_best_dtypes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="p">[</span><span class="n">col</span><span class="p">],</span> <span class="kc">False</span><span class="p">,</span> <span class="kc">False</span><span class="p">),</span>
+                <span class="n">Statistics</span><span class="o">.</span><span class="n">get_memory_usage</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="p">[</span><span class="n">col</span><span class="p">],</span> <span class="kc">False</span><span class="p">),</span>
+                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">Statistics</span><span class="o">.</span><span class="n">get_memory_usage_percentage</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="n">col</span><span class="p">],</span><span class="w"> </span><span class="kc">False</span><span class="p">)</span><span class="si">}</span><span class="s2">%&quot;</span><span class="p">,</span>
+                <span class="n">Statistics</span><span class="o">.</span><span class="n">get_nulls_count</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="p">[</span><span class="n">col</span><span class="p">],</span> <span class="kc">False</span><span class="p">),</span>
+                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">Statistics</span><span class="o">.</span><span class="n">get_null_percentage</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="n">col</span><span class="p">],</span><span class="w"> </span><span class="kc">False</span><span class="p">)</span><span class="si">}</span><span class="s2">%&quot;</span><span class="p">,</span>
+                <span class="nb">list</span><span class="p">(</span><span class="n">Statistics</span><span class="o">.</span><span class="n">get_num_of_unique_values</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="p">[</span><span class="n">col</span><span class="p">],</span> <span class="kc">False</span><span class="p">)</span><span class="o">.</span><span class="n">values</span><span class="p">())[</span><span class="mi">0</span><span class="p">],</span>
+            <span class="p">]</span>
+            <span class="n">dataframe</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">col_info</span><span class="p">)</span>
+    
+        <span class="n">column_names</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="s1">&#39;Column&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;Dtype&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;Recommend_Dtype&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;Memory&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;Memory_Percentage&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;Missing_Values&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;Percentage_of_Missing_Values&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;Distinct_Values&#39;</span>
+        <span class="p">]</span>
+        <span class="n">dataframe</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">dataframe</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="n">column_names</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">transpose</span><span class="p">:</span>
+            <span class="n">dataframe</span> <span class="o">=</span> <span class="n">dataframe</span><span class="o">.</span><span class="n">transpose</span><span class="p">()</span>
+            <span class="n">dataframe</span><span class="o">.</span><span class="n">columns</span> <span class="o">=</span> <span class="n">dataframe</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">dataframe</span> <span class="o">=</span> <span class="n">dataframe</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span>
+        <span class="k">return</span> <span class="n">dataframe</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">columns</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="Statistics.get_dataframe_values_insight">
+<a class="viewcode-back" href="../../suntzu.html#suntzu.statistics.Statistics.get_dataframe_values_insight">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_dataframe_values_insight</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">transpose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Generates insights about the values in each column of a given dataframe.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            self (pandas.DataFrame): The dataframe for which insights are to be generated.</span>
+<span class="sd">            transpose (bool, optional): A boolean flag indicating whether to transpose the resulting dataframe. Default is False.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            pandas.DataFrame: A dataframe containing insights about the values in each column of the input dataframe. The number of rows in the resulting dataframe is equal to the number of columns in the input dataframe.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">dataframe</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+            <span class="n">col_info</span> <span class="o">=</span> <span class="p">[</span>
+                <span class="n">col</span><span class="p">,</span>
+                <span class="nb">str</span><span class="p">(</span><span class="n">Statistics</span><span class="o">.</span><span class="n">get_dtypes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="p">[</span><span class="n">col</span><span class="p">],</span> <span class="kc">False</span><span class="p">))</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="s2">&quot;[]&#39;&quot;</span><span class="p">),</span>
+                <span class="nb">list</span><span class="p">(</span><span class="n">Statistics</span><span class="o">.</span><span class="n">get_num_of_unique_values</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="p">[</span><span class="n">col</span><span class="p">],</span> <span class="kc">False</span><span class="p">)</span><span class="o">.</span><span class="n">values</span><span class="p">())[</span><span class="mi">0</span><span class="p">],</span>
+                <span class="nb">list</span><span class="p">(</span><span class="n">Statistics</span><span class="o">.</span><span class="n">get_max_values</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="p">[</span><span class="n">col</span><span class="p">],</span> <span class="kc">False</span><span class="p">)</span><span class="o">.</span><span class="n">values</span><span class="p">())[</span><span class="mi">0</span><span class="p">],</span>
+                <span class="nb">list</span><span class="p">(</span><span class="n">Statistics</span><span class="o">.</span><span class="n">get_max_values_count</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="p">[</span><span class="n">col</span><span class="p">],</span> <span class="kc">False</span><span class="p">)</span><span class="o">.</span><span class="n">values</span><span class="p">())[</span><span class="mi">0</span><span class="p">],</span>
+                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="nb">list</span><span class="p">(</span><span class="n">Statistics</span><span class="o">.</span><span class="n">get_max_values_percentage</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="n">col</span><span class="p">],</span><span class="w"> </span><span class="kc">False</span><span class="p">)</span><span class="o">.</span><span class="n">values</span><span class="p">())[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s2">%&quot;</span><span class="p">,</span>
+                <span class="nb">list</span><span class="p">(</span><span class="n">Statistics</span><span class="o">.</span><span class="n">get_min_values</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="p">[</span><span class="n">col</span><span class="p">],</span> <span class="kc">False</span><span class="p">)</span><span class="o">.</span><span class="n">values</span><span class="p">())[</span><span class="mi">0</span><span class="p">],</span>
+                <span class="nb">list</span><span class="p">(</span><span class="n">Statistics</span><span class="o">.</span><span class="n">get_min_values_count</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="p">[</span><span class="n">col</span><span class="p">],</span> <span class="kc">False</span><span class="p">)</span><span class="o">.</span><span class="n">values</span><span class="p">())[</span><span class="mi">0</span><span class="p">],</span>
+                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="nb">list</span><span class="p">(</span><span class="n">Statistics</span><span class="o">.</span><span class="n">get_min_values_percentage</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="n">col</span><span class="p">],</span><span class="w"> </span><span class="kc">False</span><span class="p">)</span><span class="o">.</span><span class="n">values</span><span class="p">())[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s2">%&quot;</span><span class="p">,</span>
+                <span class="n">Statistics</span><span class="o">.</span><span class="n">get_nulls_count</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="p">[</span><span class="n">col</span><span class="p">],</span> <span class="kc">False</span><span class="p">),</span>
+                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">Statistics</span><span class="o">.</span><span class="n">get_null_percentage</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="n">col</span><span class="p">],</span><span class="w"> </span><span class="kc">False</span><span class="p">)</span><span class="si">}</span><span class="s2">%&quot;</span> 
+            <span class="p">]</span>
+            <span class="n">dataframe</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">col_info</span><span class="p">)</span>
+
+        <span class="n">column_names</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="s1">&#39;Column&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;Dtype&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;Distinct_Values&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;Most_Common/Max_Value&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;Occurrences_of_Max_Value&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;Percentages_of_Occurrences_of_Max_Value&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;Less_Common/Min_Value&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;Occurrences_of_Min_Value&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;Percentage_of_Occurrences_of_Min_Value&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;Missing_Values&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;Percentage_of_Missing_Values&#39;</span>
+        <span class="p">]</span>
+        <span class="n">dataframe</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">dataframe</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="n">column_names</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">transpose</span><span class="p">:</span>
+            <span class="n">dataframe</span> <span class="o">=</span> <span class="n">dataframe</span><span class="o">.</span><span class="n">transpose</span><span class="p">()</span>
+            <span class="n">dataframe</span><span class="o">.</span><span class="n">columns</span> <span class="o">=</span> <span class="n">dataframe</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">dataframe</span> <span class="o">=</span> <span class="n">dataframe</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span>
+        <span class="k">return</span> <span class="n">dataframe</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">columns</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="Statistics.find">
+<a class="viewcode-back" href="../../suntzu.html#suntzu.statistics.Statistics.find">[docs]</a>
+    <span class="k">def</span> <span class="nf">find</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">conditions</span><span class="p">,</span> <span class="n">AND</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">OR</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Filter the data in a DataFrame based on specified conditions using logical operators (AND or OR).</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            conditions (list): A list of conditions to filter the data. Each condition is a logical expression using comparison operators.</span>
+<span class="sd">            AND (bool, optional): Indicates whether to use the AND operator for combining the conditions. Default is True.</span>
+<span class="sd">            OR (bool, optional): Indicates whether to use the OR operator for combining the conditions. Default is False.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            DataFrame: A subset of the original DataFrame that satisfies the specified conditions.</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            TypeError: If the conditions input is not a list.</span>
+<span class="sd">            ValueError: If both AND and OR are True simultaneously.</span>
+<span class="sd">            ValueError: If neither AND nor OR is True.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">conditions</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">conditions</span><span class="si">}</span><span class="s2"> has to be a list&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">OR</span> <span class="ow">and</span> <span class="n">AND</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Both AND and OR cannot be True simultaneously.&quot;</span><span class="p">)</span>
+        <span class="n">combined_condition</span> <span class="o">=</span> <span class="n">conditions</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">AND</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">condition</span> <span class="ow">in</span> <span class="n">conditions</span><span class="p">[</span><span class="mi">1</span><span class="p">:]:</span>
+                <span class="n">combined_condition</span> <span class="o">=</span> <span class="n">combined_condition</span> <span class="o">&amp;</span> <span class="n">condition</span>
+        <span class="k">elif</span> <span class="n">OR</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">condition</span> <span class="ow">in</span> <span class="n">conditions</span><span class="p">[</span><span class="mi">1</span><span class="p">:]:</span>
+                <span class="n">combined_condition</span> <span class="o">=</span> <span class="n">combined_condition</span> <span class="o">|</span> <span class="n">condition</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Either AND or OR must be True.&quot;</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="p">[</span><span class="n">combined_condition</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="Statistics.find_replace">
+<a class="viewcode-back" href="../../suntzu.html#suntzu.statistics.Statistics.find_replace">[docs]</a>
+    <span class="k">def</span> <span class="nf">find_replace</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">conditions</span><span class="p">,</span> <span class="n">replace_with</span><span class="p">,</span> <span class="n">AND</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">OR</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Find rows in a DataFrame that meet certain conditions and replace values in a specified column with a new value.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            conditions (dict): A dictionary specifying the conditions to filter the DataFrame. The keys are column names and the values are either a single value or a lambda function that returns True or False.</span>
+<span class="sd">            replace_with (tuple): A tuple containing the name of the column to replace values in and the new value to replace with.</span>
+<span class="sd">            AND (bool, optional): A boolean flag indicating whether to use the AND operator when evaluating multiple conditions. Default is True.</span>
+<span class="sd">            OR (bool, optional): A boolean flag indicating whether to use the OR operator when evaluating multiple conditions. Default is False.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            None: The method modifies the DataFrame in-place and does not return any value.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">new_dataset</span> <span class="o">=</span> <span class="n">Statistics</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">conditions</span><span class="p">,</span> <span class="n">AND</span><span class="p">,</span> <span class="n">OR</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">new_dataset</span><span class="o">.</span><span class="n">index</span><span class="p">,</span> <span class="n">replace_with</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span> <span class="o">=</span> <span class="n">replace_with</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+        <span class="k">return</span> <span class="bp">self</span></div>
+
+<div class="viewcode-block" id="Statistics.find_delete">
+<a class="viewcode-back" href="../../suntzu.html#suntzu.statistics.Statistics.find_delete">[docs]</a>
+    <span class="k">def</span> <span class="nf">find_delete</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">conditions</span><span class="p">,</span> <span class="n">AND</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">OR</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Find rows in the DataFrame that meet certain conditions, delete those rows from the DataFrame, and return the modified DataFrame.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            conditions (list): A list of conditions to filter the rows of the DataFrame.</span>
+<span class="sd">            AND (bool, optional): A boolean flag indicating whether the conditions should be combined using the logical AND operator. Default is True.</span>
+<span class="sd">            OR (bool, optional): A boolean flag indicating whether the conditions should be combined using the logical OR operator. Default is False.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            pandas.DataFrame: The modified DataFrame after deleting the rows that meet the conditions.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">new_dataset</span> <span class="o">=</span> <span class="n">Statistics</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">conditions</span><span class="p">,</span> <span class="n">AND</span><span class="p">,</span> <span class="n">OR</span><span class="p">)</span>
+        <span class="bp">self</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">new_dataset</span><span class="o">.</span><span class="n">index</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span></div>
+</div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Igor Carvalheira.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

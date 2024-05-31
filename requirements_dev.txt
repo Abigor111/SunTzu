@@ -1,9 +1,7 @@
-tox==3.14.0
-Sphinx==1.8.5
-twine==1.14.0
-pandas==2.0.2
-xarray==2023.6.0
-pyarrow==12.0.1
-numpy==1.24.4
-jsonschema==4.17.3
-json==2.0.9
+pandas
+xarray
+pyarrow
+numpy
+jsonschema
+slack_sdk
+IPython

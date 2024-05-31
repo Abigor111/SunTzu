@@ -1,4 +1,4 @@
-Welcome to my_project's documentation!
+Welcome to SunTzu's documentation!
 ======================================
 
 .. toctree::
@@ -12,6 +12,7 @@ Welcome to my_project's documentation!
    api/statistics
    api/metadata
    api/visualization
+   authors
    changelog
 
 Indices and tables

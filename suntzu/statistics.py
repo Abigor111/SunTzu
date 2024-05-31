@@ -1,8 +1,7 @@
 # Import necessary libraries
-import pandas as pd
+import pandas as pd # type: ignore
 import numpy as np
-from IPython.display import display
-import xarray as xr
+from IPython.display import display # type: ignore
 class Statistics(pd.DataFrame):
     """
     The `Statistics` class is a subclass of the `pd.DataFrame` class in the pandas library. It provides additional methods for performing statistical analysis and data exploration on a DataFrame, such as finding maximum and minimum values, counting occurrences, calculating percentages, and generating insights about the data.

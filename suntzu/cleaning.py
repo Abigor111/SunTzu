@@ -1,6 +1,5 @@
 from .statistics import Statistics
-import pandas as pd
-from typing import Union, Optional
+import pandas as pd # type: ignore
 class Cleaning(pd.DataFrame):
     """
     The `Cleaning` class is a subclass of the `pd.DataFrame` class in the pandas library. It provides various methods for cleaning and transforming data in a DataFrame.

@@ -1,10 +1,10 @@
-import pyarrow as pa
-import jsonschema 
-import pyarrow.parquet as pq
-import json
-from jsonschema.exceptions import ValidationError
-import pandas as pd
-import xarray as xr
+import pyarrow as pa # type: ignore
+import jsonschema # type: ignore
+import pyarrow.parquet as pq # type: ignore
+import json # type: ignore
+from jsonschema.exceptions import ValidationError # type: ignore
+import pandas as pd # type: ignore
+import xarray as xr # type: ignore
 from .statistics import Statistics
 from typing import Optional
 class netCDF_Metadata(xr.Dataset):

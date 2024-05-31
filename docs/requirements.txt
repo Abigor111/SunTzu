@@ -6,3 +6,4 @@ pyarrow
 numpy
 jsonschema
 IPython
+slack_sdk

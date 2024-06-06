@@ -1,7 +1,7 @@
 """Top-level package for SunTzu."""
 # __init__.py
 #import pandas as pd
-from .file import read_file, PandasFile
+from .file import read_file, File
 from .cleaning import Cleaning
 from .metadata import netCDF_Metadata, ParquetMetadata
 from .statistics import Statistics

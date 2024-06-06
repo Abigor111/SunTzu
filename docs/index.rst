@@ -1,17 +1,19 @@
-.. SunTzu documentation master file, created by
-   sphinx-quickstart on Fri Mar 15 14:16:22 2024.
-   You can adapt this file completely to your liking, but it should at least
-   contain the root `toctree` directive.
-
 Welcome to SunTzu's documentation!
-==================================
+======================================
 
 .. toctree::
    :maxdepth: 2
    :caption: Contents:
-    
-   suntzu	
 
+   introduction
+   installation
+   usage
+   api/cleaning
+   api/statistics
+   api/metadata
+   api/visualization
+   authors
+   changelog
 
 Indices and tables
 ==================

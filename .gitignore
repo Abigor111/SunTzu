@@ -65,7 +65,9 @@ instance/
 .scrapy
 
 # Sphinx documentation
-docs/_build/
+docs/_build
+docs/_static
+docs/_templates
 .readthedocs.yaml
 # PyBuilder
 target/
@@ -133,3 +135,7 @@ tox.ini
 *.parquet
 *.nc
 /imgs
+.gitattributes
+tests
+.github
+requirements_dev.txt

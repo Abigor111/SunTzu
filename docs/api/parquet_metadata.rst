@@ -1,7 +1,7 @@
-Metadata Module
+Parquet Metadata Module
 ===============
 
-.. automodule:: suntzu.metadata
+.. autoclass:: suntzu.metadata.ParquetMetadata
    :members:
    :undoc-members:
    :show-inheritance:

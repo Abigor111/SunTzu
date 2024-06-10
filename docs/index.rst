@@ -10,14 +10,9 @@ Welcome to SunTzu's documentation!
    usage
    api/cleaning
    api/statistics
-   api/metadata
+   api/parquet_metadata
+   api/netcdf_metadata
    api/visualization
+   api/settings
    authors
    changelog
-
-Indices and tables
-==================
-
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`

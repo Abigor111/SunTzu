@@ -1,7 +1,7 @@
 Visualization Module
 ====================
 
-.. automodule:: suntzu.visualization
+.. autoclass:: suntzu.visualization
    :members:
    :undoc-members:
    :show-inheritance:

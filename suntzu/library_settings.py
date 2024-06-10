@@ -6,7 +6,7 @@ from .statistics import Statistics
 from .cleaning import Cleaning
 from .metadata import netCDF_Metadata
 from .metadata import ParquetMetadata
-class File:
+class Settings:
     @staticmethod
     def get_file_extension(path):
         """
@@ -20,7 +20,7 @@ class File:
         """
         return os.path.splitext(path)[1]
 
-    def export_to_file(self, filename):
+    def export_to_file(self: pd.DataFrame | xr.Dataset, filename: str):
         """
         Exports data to a file with a specified filename.
 
@@ -72,7 +72,7 @@ def read_file(path: str, **kwargs) -> xr.Dataset | pd.DataFrame:
 
     try:
         # Get the file extension
-        extension = File.get_file_extension(path)
+        extension = Settings.get_file_extension(path)
         # If the extension is .csv, read the file as a CSV
         if extension == ".csv":
             df = pd.read_csv(path, **kwargs)

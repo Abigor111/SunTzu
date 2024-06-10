@@ -1,7 +1,7 @@
-Metadata Module
+Statistics Module
 ===============
 
-.. automodule:: suntzu.metadata
+.. autoclass:: suntzu.statistics
    :members:
    :undoc-members:
    :show-inheritance:

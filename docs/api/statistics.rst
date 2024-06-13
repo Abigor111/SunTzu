@@ -1,7 +1,7 @@
 Statistics Module
 ===============
 
-.. autoclass:: suntzu.statistics
+.. autoclass:: suntzu.statistics.Statistics
    :members:
    :undoc-members:
    :show-inheritance:

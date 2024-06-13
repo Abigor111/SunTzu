@@ -1,7 +1,7 @@
 Library Settings Module
 ===============
 
-.. autoclass:: suntzu.library_settings
+.. autoclass:: suntzu.library_settings.Settings
    :members:
    :undoc-members:
    :show-inheritance:

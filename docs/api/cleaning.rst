@@ -1,7 +1,7 @@
 Cleaning Module
 ===============
 
-.. autoclass:: suntzu.cleaning
+.. autoclass:: suntzu.cleaning.Cleaning
    :members:
    :undoc-members:
    :show-inheritance:

@@ -8,11 +8,12 @@ Welcome to SunTzu's documentation!
    introduction
    installation
    usage
-   api/cleaning
-   api/statistics
-   api/parquet_metadata
-   api/netcdf_metadata
-   api/visualization
-   api/settings
+   chapters/cleaning
+   chapters/optimization
+   chapters/statistics
+   chapters/parquet_metadata
+   chapters/netcdf_metadata
+   chapters/visualization
+   chapters/settings
    authors
    changelog

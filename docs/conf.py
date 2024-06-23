@@ -6,11 +6,11 @@
 # -- Project information -----------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
 
+import os, sys
 project = 'SunTzu'
-copyright = '2024, Igor Carvalheira'
+copyright = '2023-2024, Igor Carvalheira'
 author = 'Igor Carvalheira'
 release = '0.2.2'
-import os, sys
 sys.path.insert(0, os.path.abspath("../"))
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration

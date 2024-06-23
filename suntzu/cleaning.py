@@ -1,42 +1,6 @@
 from .statistics import Statistics
 import pandas as pd # type: ignore
 class Cleaning(pd.DataFrame):
-    """
-    The `Cleaning` class is a subclass of the `pd.DataFrame` class in the pandas library. It provides various methods for cleaning and transforming data in a DataFrame.
-
-
-    **Main functionalities**:
-    - Capitalizing, converting to lowercase, and converting to uppercase the column names of a DataFrame.
-    - Removing specified characters from the column names of a DataFrame.
-    - Rounding the numerical values in specified columns of a DataFrame.
-    - Removing specified characters from the values in specified columns of a DataFrame.
-    - Capitalizing, converting to lowercase, and converting to uppercase the string values in specified columns of a DataFrame.
-    - Removing rows with missing values from a DataFrame.
-    - Interpolating missing values in a DataFrame.
-    - Forward filling missing values in a DataFrame.
-    - Splitting values in a column of a DataFrame into multiple columns.
-    - Backward filling missing values in a DataFrame.
-    - Filling missing values in a DataFrame with the mean, maximum, or minimum value of each column.
-
-    **Methods**:
-    - capitalize_cols_name(cols=None): Capitalizes the column names of the DataFrame.
-    - lower_cols_name(cols=None): Converts the column names of the DataFrame to lowercase.
-    - upper_cols_name(cols=None): Converts the column names of the DataFrame to uppercase.
-    - remove_cols_character(cols=None, characters=['_'], add_new_character=False, new_character=" "): Removes specified characters from the column names of the DataFrame.
-    - round_rows_value(cols=None, decimals=2): Rounds the numerical values in specified columns of the DataFrame to a specified number of decimal places.
-    - remove_rows_character(cols=None, characters=[','], add_new_character=False, new_character=" "): Removes specified characters from the values in the specified columns of the DataFrame.
-    - capitalize_rows_string(cols=None): Capitalizes the string values in the specified columns of the DataFrame.
-    - lower_rows_string(cols=None): Converts the string values in specified columns of the DataFrame to lowercase.
-    - upper_rows_string(cols=None): Converts the string values in specified columns of the DataFrame to uppercase.
-    - remove_rows_with_missing_values(cols=None): Removes rows with missing values from the DataFrame.
-    - interpolate_rows_with_missing_values(cols=None): Interpolates missing values in the DataFrame by filling them with interpolated values.
-    - foward_fill_rows_with_missing_values(cols=None): Forward fills missing values in the DataFrame by filling the missing values with the last known non-null value in the column.
-    - split_rows_string(col, new_cols, separator=",", delete_col=True, save_remain=True): Splits the values in a specified column of the DataFrame into multiple columns based on a separator.
-    - backward_fill_rows_with_missing_values(cols=None): Fills missing values in the DataFrame by backward filling them with the last valid value in each column.
-    - fill_rows_with_missing_values_mean(cols=None, decimals=2): Fills missing values in the DataFrame with the mean value of the respective column.
-    - fill_rows_with_missing_values_max(cols=None): Fills missing values in the DataFrame with the maximum value of each column.
-    - fill_rows_with_missing_values_min(cols=None): Fills missing values in the DataFrame with the minimum value of each column.
-    """
     def capitalize_cols_name(self: pd.DataFrame, cols: pd.Series = None):
         """
         Capitalizes the column names of the DataFrame.

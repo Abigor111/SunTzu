@@ -6,6 +6,7 @@ from .statistics import Statistics
 from .cleaning import Cleaning
 from .metadata import netCDF_Metadata
 from .metadata import ParquetMetadata
+from .optimization import Optimization
 class Settings:
     @staticmethod
     def get_file_extension(path):

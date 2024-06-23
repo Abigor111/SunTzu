@@ -9,33 +9,6 @@ from .statistics import Statistics
 from typing import Optional
 
 class netCDF_Metadata(xr.Dataset):
-    """
-    A subclass of `xr.Dataset` that provides methods for reading and inserting metadata into a netCDF file. It also includes methods for reading and inserting global metadata attributes.
-
-    Methods:
-        - get_file_variables(): Returns a list of variables in the NetCDF file.
-        
-        - read_netCDF_metadata(variables=None, attributes=None): Reads and prints metadata information from a NetCDF file.
-        
-        - insert_netCDF_metadata_input(variables=None, attributes=None, new_file=False, filename="new_file.nc"): Prompts the user to input metadata for specified variables in a NetCDF file.
-        
-        - insert_netCDF_metadata_dict(dictionary, variables=None, new_file=False, filename="new_file.nc"): Inserts metadata into a NetCDF file using a dictionary.
-        
-        - insert_netCDF_metadata_json(json_file, new_file=False, filename="new_file.nc"): Inserts metadata from a JSON file into a NetCDF file.
-        
-        - insert_netCDF_metadata(via="input", kwargs): Inserts metadata into the NetCDF file using the specified method.
-        
-        
-        - read_global_metadata(attributes=None): Prints the global metadata attributes of the dataset.
-        
-        - insert_netCDF_global_metadata_input(attributes=None, new_file=False, filename="new_file.nc"): Inserts global metadata into a NetCDF file using user input.
-        
-        - insert_netCDF_global_metadata_dict(dictionary, new_file=False, filename="new_file.nc"): Inserts global metadata into a NetCDF file using a dictionary.
-        
-        - insert_netCDF_global_metadata_json(json_file, new_file=False, filename="new_file.nc"): Inserts global metadata from a JSON file into a NetCDF file.
-        
-        - insert_netCDF_global_metadata(via="input", kwargs): Inserts global metadata into a NetCDF file using the specified method.
-    """
     def get_file_variables(self: xr.Dataset) -> list:
         """
         Get the variables of the file.
@@ -496,23 +469,6 @@ class netCDF_Metadata(xr.Dataset):
         except Exception as e:
             raise ValueError(f"Error inserting netCDF metadata: {str(e)}")
 class ParquetMetadata(pd.DataFrame):
-    """
-    The `ParquetMetadata` class is a subclass of `pd.DataFrame` that provides methods for reading and inserting metadata into Parquet files. It allows users to read the metadata of a Parquet file and print the attributes of each column. Users can also insert metadata into a Parquet file using various methods such as providing metadata through user input, a dictionary, or a JSON file.
-
-    Main functionalities:
-    - Reading the metadata of a Parquet file and printing the attributes of each column
-    - Inserting metadata into a Parquet file using user input, a dictionary, or a JSON file
-
-    Methods:
-    - read_parquet_metadata(attributes=None, cols=None): Reads the metadata of a Parquet file and prints the attributes of each column.
-    - insert_parquet_metadata_input(attributes=None, cols=None, new_file=False, filename="new_file.parquet"): Inserts metadata for columns in a Parquet file.
-    - insert_parquet_metadata_dict(dictionary, cols=None, new_file=False, filename="new_file.parquet"): Inserts metadata into a Parquet file based on a given dictionary.
-    - insert_parquet_metadata_json(json_file, new_file=False, filename="new_file.parquet"): Inserts metadata from a JSON file into a Parquet file.
-    - insert_parquet_metadata(via="input", **kwargs): Inserts metadata into a Parquet file.
-
-    Fields:
-    - No significant fields.
-    """
     def read_parquet_metadata(self: pd.DataFrame, attributes: Optional[list[str]] = None, cols: Optional[list[str]] = None) -> None:        
         """
         Reads the metadata of a Parquet file and prints the attributes of each column.

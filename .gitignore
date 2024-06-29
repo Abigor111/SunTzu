@@ -134,6 +134,7 @@ tox.ini
 *.7z
 *.parquet
 *.nc
+.pypirc
 /imgs
 .gitattributes
 tests

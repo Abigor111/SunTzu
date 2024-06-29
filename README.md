@@ -2,8 +2,6 @@
   <img src="https://i.imgur.com/vUEEcII.png" alt="SunTzu Logo"><br>
 </div>
 
-
-
 # SunTzu: The Art of Data Science
 
 ## What is SunTzu?
@@ -47,14 +45,7 @@ If you want to install a specific version use:
 pip install suntzu==specific_version
 ```
 
-<!---
-| | |
-| --- | --- |
-| Source Code | [![GitHub](https://imgur.com/kBx3B82.png)](https://github.com/Abigor111/SunTzu) |
-| Docs | [![Docs](https://readthedocs.org/projects/suntzu/badge/?version=latest)](https://suntzu.readthedocs.io/en/latest/?version=latest)|
-| Package | [![PyPI Latest Release](https://img.shields.io/pypi/v/suntzu.svg)](https://pypi.python.org/pypi/suntzu) [![PyPI Downloads](https://img.shields.io/pypi/dm/suntzu.svg?label=PyPI%20downloads)](https://pypi.org/project/suntzu/) |
-| | | 
--->
+
 ## Libraries Used
 - [pandas](https://pypi.org/project/pandas/)
 - [pyarrow](https://pypi.org/project/pyarrow/)
@@ -71,5 +62,4 @@ None yet. Why not be the first to contribute?
 
 If you are not sure how can you contribute to SunTzu check this page: [CONTRIBUTING](CONTRIBUTING.md)
 ## Credits
-
  - This package was created with [Cookiecutter](https://github.com/audreyr/cookiecutter) and the [`audreyr/cookiecutter-pypackage`](https://github.com/audreyr/cookiecutter-pypackage) project template.

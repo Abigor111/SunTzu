@@ -1,163 +1,316 @@
-import os
-import json
-import requests # type: ignore
-from slack_sdk import WebClient # type: ignore
-from slack_sdk.errors import SlackApiError # type: ignore
+import itertools
+from matplotlib.container import BarContainer
+import numpy as np
+import pandas as pd # type: ignore
+import matplotlib.pyplot as plt
 class Visualization:
-    @staticmethod
-    def save_telegram_credentials(bot_token: str =None, chat_id: str=None):
+    def scatter_plot(self: pd.DataFrame, x: pd.Series, y: pd.Series, title: str =None, xlabel:str =None, ylabel: str =None,  rotation_xlabel: int = None, grid=False, legend: bool=True) -> None:
         """
-        Save the Telegram credentials to a JSON file.
+        This function creates a scatter plot using the provided x and y series from a DataFrame.
 
-        Args:
-            bot_token (str, optional): The bot token. If not provided, the user will be prompted to enter it.
-            chat_id (str, optional): The chat ID. If not provided, the user will be prompted to enter it.
-            filename (str, optional): The name of the JSON file to save the credentials. Defaults to "telegram_credentials.json".
+        Parameters:
+        self (pd.DataFrame): The DataFrame containing the x and y series.
+        x (pd.Series): The x-axis series to be plotted.
+        y (pd.Series): The y-axis series to be plotted.
+        title (str): The title of the plot. Default is None.
+        xlabel (str): The label for the x-axis. Default is None.
+        ylabel (str): The label for the y-axis. Default is None.
+        rotation_xlabel (int): The rotation angle for the x-axis labels. Default is None.
+        grid (bool): A boolean indicating whether to display a grid on the plot. Default is False.
+        legend (bool): A boolean indicating whether to display a legend on the plot. Default is True.
+        filename (str): The name of the file to save the plot. Default is None.
+        dpi (int): The resolution of the saved plot in dots per inch. Default is 100.
+
+        Returns:
+        None
         """
-        bot_token = bot_token or input("Insert the bot_token: ")
-        chat_id = chat_id or input("Insert the chat id: ")
-        dictionary = {"chat_id": chat_id, "bot_token": bot_token}
+        if xlabel is None:
+            xlabel = str(x)
+        if ylabel is None:
+            ylabel = str(y)
+        if title is None:
+            title = xlabel + " VS " + ylabel
+        fig, ax = plt.subplots()
+        ax.set_xlabel(xlabel)
+        ax.set_ylabel(ylabel)
+        ax.set_title(title)
+        ax.grid(grid)
+        if rotation_xlabel is not None:
+            plt.xticks(rotation=rotation_xlabel)
+        if plt.gca().get_legend() is not None and legend:
+            if any(label.get_label() for label in plt.gca().get_legend().get_texts()):
+                plt.legend()
+        if x in self.columns and y in self.columns:
+            scattter = ax.scatter(x=self[x], y=self[y], zorder=2)
+        else:
+            raise ValueError(f"Columns '{x}' or '{y}' not found in DataFrame.")
+        return scattter
+    def lineplot(self: pd.DataFrame , x: pd.Series, y: pd.Series, title: str =None, xlabel:str =None, ylabel: str =None, rotation_xlabel: int = None, grid=False, legend: bool=True) -> None:
+        """
+        This function creates a line plot using the provided x and y series from a DataFrame.
+
+        Parameters:
+        self (pd.DataFrame): The DataFrame containing the x and y series.
+        x (pd.Series): The x-axis series to be plotted.
+        y (pd.Series): The y-axis series to be plotted.
+        title (str): The title of the plot. Default is None.
+        xlabel (str): The label for the x-axis. Default is None.
+        ylabel (str): The label for the y-axis. Default is None.
+        rotation_xlabel (int): The rotation angle for the x-axis labels. Default is None.
+        grid (bool): A boolean indicating whether to display a grid on the plot. Default is False.
+        legend (bool): A boolean indicating whether to display a legend on the plot. Default is True.
+
+        Returns:
+        None
+        """
+        if xlabel is None:
+            xlabel = str(x)
+        if ylabel is None:
+            ylabel = str(y)
+        if title is None:
+            title = xlabel + " VS " + ylabel
+        fig, ax = plt.subplots()
+        ax.set_xlabel(xlabel)
+        ax.set_ylabel(ylabel)
+        ax.set_title(title)
+        ax.grid(grid)
+        if rotation_xlabel is not None:
+            plt.xticks(rotation=rotation_xlabel)
+        if plt.gca().get_legend() is not None and legend:
+            if any(label.get_label() for label in plt.gca().get_legend().get_texts()):
+                plt.legend()
+        if x in self.columns and y in self.columns:    
+            line = ax.plot(self[x], self[y], color=plt.rcParams['lines.color'],
+                                    linestyle=plt.rcParams['lines.linestyle'],
+                                    linewidth=plt.rcParams['lines.linewidth'],
+                                    marker=plt.rcParams['lines.marker'],
+                                    markeredgecolor=plt.rcParams['lines.markeredgecolor'],
+                                    markeredgewidth=plt.rcParams['lines.markeredgewidth'],
+                                    markerfacecolor=plt.rcParams['lines.markerfacecolor'],
+                                    markersize=plt.rcParams['lines.markersize'],
+                                    zorder=2)
+        else:
+            raise ValueError(f"Columns '{x}' or '{y}' not found in DataFrame.")
+
+        return line
+    def multilineplot(self: pd.DataFrame , x: pd.Series, ys: list[pd.Series], colors: list[str] = ["blue", "green", "red"],title: str =None, xlabel:str =None, xlim: tuple = None, ylabel: str =None, ylim: tuple = None, rotation_xlabel: int = None, grid=False, legend: bool=True) -> None:
+        """
+        This function creates a multiline plot using the provided x and y series from a DataFrame.
+
+        Parameters:
+        self (pd.DataFrame): The DataFrame containing the x and y series.
+        x (pd.Series): The x-axis series to be plotted.
+        ys (list[pd.Series]): The y-axis series to be plotted.
+        colors (list[str]): A list of colors for each line in the plot. Default is ["blue", "green", "red"].
+        title (str): The title of the plot. Default is None.
+        xlabel (str): The label for the x-axis. Default is None.
+        xlim (tuple): The limits for the x-axis. Default is None.
+        ylabel (str): The label for the y-axis. Default is None.
+        ylim (tuple): The limits for the y-axis. Default is None.
+        rotation_xlabel (int): The rotation angle for the x-axis labels. Default is None.
+        grid (bool): A boolean indicating whether to display a grid on the plot. Default is False.
+        legend (bool): A boolean indicating whether to display a legend on the plot. Default is True.
+
+        Returns:
+        None
+        """
+        if xlabel is None:
+            xlabel = str(x)
+        if ylabel is None:
+            ylabel = str(ys)
+        if title is None:
+            title = xlabel + " VS " + ylabel
+        fig, ax = plt.subplots()
+        ax.set_xlabel(xlabel)
+        ax.set_ylabel("Teste")
+        ax.set_title(title)
+        ax.grid(grid)
+        if rotation_xlabel is not None:
+            plt.xticks(rotation=rotation_xlabel)
+        if plt.gca().get_legend() is not None and legend:
+            if any(label.get_label() for label in plt.gca().get_legend().get_texts()):
+                plt.legend()
+        if xlim is not None:
+            ax.set_xlim(xlim)
+        if ylim is not None:
+            ax.set_ylim(ylim)
+        i= 0
+        for y in ys:
+            if x in self.columns and y in self.columns:    
+                ax.plot(self[x], self[y], color=colors[i],zorder=2)
+            else:
+                raise ValueError(f"Columns '{x}' or '{y}' not found in DataFrame.")
+            if i + 1 < len(colors):
+                i+=1
+        
+        plt.show()
+    def barplot(self: pd.DataFrame , x: pd.Series, y: pd.Series, title: str =None, xlabel:str =None, ylabel: str =None, rotation_xlabel: int = None, grid=False, legend: bool=True) -> BarContainer:
+        """
+        This function creates a bar plot using the provided x and y series from a DataFrame.
+
+        Parameters:
+        self (pd.DataFrame): The DataFrame containing the x and y series.
+        x (pd.Series): The x-axis series to be plotted.
+        y (pd.Series): The y-axis series to be plotted.
+        title (str): The title of the plot. Default is None.
+        xlabel (str): The label for the x-axis. Default is None.
+        ylabel (str): The label for the y-axis. Default is None.
+        rotation_xlabel (int): The rotation angle for the x-axis labels. Default is None.
+        grid (bool): A boolean indicating whether to display a grid on the plot. Default is False.
+        legend (bool): A boolean indicating whether to display a legend on the plot. Default is True.
+
+        Returns:
+        BarContainer: The container object containing the bars of the bar plot.
+        """
+        if xlabel is None:
+            xlabel = str(x)
+        if ylabel is None:
+            ylabel = str(y)
+        if title is None:
+            title = xlabel + " VS " + ylabel
+        fig, ax = plt.subplots()
+        ax.set_xlabel(xlabel)
+        ax.set_ylabel(ylabel)
+        ax.set_title(title)
+        ax.grid(grid)
+        if rotation_xlabel is not None:
+            plt.xticks(rotation=rotation_xlabel)
+        if plt.gca().get_legend() is not None and legend:
+            if any(label.get_label() for label in plt.gca().get_legend().get_texts()):
+                plt.legend()
         try:
-            with open('telegram_credentials.json', "w") as outfile:
-                json.dump(dictionary, outfile)
+            if x in self.columns and y in self.columns:
+                bars = ax.bar(self[x], self[y], zorder=2)
+            else:
+                raise ValueError(f"Columns '{x}' or '{y}' not found in DataFrame.")
         except Exception as e:
-            print("Error occurred while saving telegram credentials:", str(e))
-    @staticmethod
-    def send_images_via_telegram(file_path: str, chat_id: str=None, bot_token: str =None, caption: str ="This is a caption"):
+            print(f"An error occurred: {e}")
+            return
+        return bars
+    def show_bar_values(bars: BarContainer, fontsize: int = 12, color: str = "black", padding: int | float = 0) -> BarContainer:
         """
-        Sends an image via Telegram using the provided file path, chat ID, bot token, and caption.
+        This function adds text labels to the bars in a bar plot, displaying the actual height of each bar.
 
-        Args:
-            file_path (str): The path to the image file.
-            chat_id (str, optional): The ID of the chat to send the image to. If not provided, it will be retrieved from the 'telegram_credentials.json' file. Defaults to None.
-            bot_token (str, optional): The token of the Telegram bot. If not provided, it will be retrieved from the 'telegram_credentials.json' file. Defaults to None.
-            caption (str, optional): The caption for the image. Defaults to "This is a caption".
-
-        Raises:
-            ValueError: If chat_id and bot_token are not provided and the 'telegram_credentials.json' file does not exist.
-            ValueError: If chat_id or bot_token is not provided.
+        Parameters:
+        bars (BarContainer): The BarContainer object returned by the bar plot function.
+        fontsize (int): The size of the text labels. Default is 12.
+        color (str): The color of the text labels. Default is "black".
+        padding (int | float): The padding between the bar and the text label. Default is 0.
 
         Returns:
-            None
+        BarContainer: The same BarContainer object with added text labels.
         """
-        if chat_id is None and bot_token is None:
-            if os.path.exists('telegram_credentials.json'):
-                try:
-                    with open('telegram_credentials.json', 'r') as openfile:
-                        json_object = json.load(openfile)
-                    chat_id = json_object.get("chat_id")
-                    bot_token = json_object.get("bot_token")
-                except ValueError:
-                    print("Please use the function 'save_telegram_credentials'")
-            else:
-                raise ValueError("Please provide the chat_id and the bot_token or use the function 'save_telegram_credentials'.")
-        if chat_id is None or bot_token is None:
-            raise ValueError("chat_id and bot_token are required parameters")
-        base_url = f"https://api.telegram.org/bot{bot_token}/sendPhoto"
-        with open(file_path, 'rb') as my_file:
-            parameters = {
-                "chat_id": chat_id,
-                "caption": caption
-            }
-            files = {   
-                "photo": my_file
-            }
-            try:
-                resp = requests.post(base_url, data=parameters, files=files)
-                status_code = resp.status_code
-                if status_code == 200:
-                    print("The photo was sent.")
-                else:
-                    resp_json = resp.json()
-                    print("Sent","-", resp_json.get("ok"))
-                    del resp_json["ok"]
-                    for key, values in resp_json.items():
-                        print(key.capitalize(), "-", values)
-            except requests.exceptions.RequestException as e:
-                print("An error occurred during the request:", str(e))
-    @staticmethod
-    def help_telegram_bot():
+        for bar in bars:
+            height = bar.get_height()
+            plt.text(bar.get_x() + bar.get_width() / 2.0, height + padding, f'{height}', ha='center', va='bottom', fontsize=fontsize, color=color)
+        return bars
+    def highlight_equal_values(bars: BarContainer, facecolor: str = "orange", edgecolor: str = "black", linewidth: int | float = 2, alpha: int | float = 1) -> BarContainer:
         """
-        Provides information on how to use a Telegram bot.
-        """
-        print('''
-        1. How to create a bot: https://www.directual.com/lesson-library/how-to-create-a-telegram-bot
-        2. Adding the bot to a group: https://botifi.me/en/help/telegram-adding-bot-to-channel-or-group/
-        3. Getting the bot_token: https://botifi.me/en/help/telegram-existed-bot/
-        4. Getting the chat_id of a group: https://www.wikihow.com/Know-Chat-ID-on-Telegram-on-Android
-        5. Possible errors: https://core.telegram.org/api/errors
-        ''')
-    @staticmethod
-    def save_slack_credentials(channel_id:str = None, slack_token:str=None):
-        """
-        Saves Slack credentials (channel ID and token) to a JSON file.
+        This function highlights bars with equal heights in a bar plot.
 
-        Args:
-            channel_id (str, optional): The ID of the Slack channel. If not provided, the user will be prompted to enter it.
-            slack_token (str, optional): The Slack token. If not provided, the user will be prompted to enter it.
+        Parameters:
+        bars (BarContainer): The container of bars in the bar plot.
+        facecolor (str): The color to fill the highlighted bars. Default is "orange".
+        edgecolor (str): The color of the edges of the highlighted bars. Default is "black".
+        linewidth (int | float): The width of the edges of the highlighted bars. Default is 2.
+        alpha (int | float): The transparency of the highlighted bars. Default is 1.
 
         Returns:
-            None: The function does not return any value.
+        BarContainer: The modified container of bars with highlighted bars.
         """
-        slack_token = slack_token or input("Insert the slack_token: ")
-        channel_id = channel_id or input("Insert the channel_id: ")
-        dictionary = {"channel_id": channel_id, "slack_token": slack_token}
-        try:
-            with open('slack_credentials.json', "w") as outfile:
-                json.dump(dictionary, outfile)
-        except Exception as e:
-            print("Error occurred while saving slack credentials:", str(e))
-    @staticmethod
-    def send_images_via_slack(file_path: str, channel_id: str=None, slack_token: str =None, caption: str ="This is a caption"):
+        height_to_indices = {}
+        for index, bar in enumerate(bars):
+            height = bar.get_height()
+            if height not in height_to_indices:
+                height_to_indices[height] = []
+            height_to_indices[height].append(index)
+        indices_with_same_value = [indices for indices in height_to_indices.values() if len(indices) > 1]
+        flat_indices_with_same_value = [index for sublist in indices_with_same_value for index in sublist]
+        for i in flat_indices_with_same_value:
+            bars[i].set_color(facecolor)
+            bars[i].set_edgecolor(edgecolor)
+            bars[i].set_linewidth(linewidth)
+            bars[i].set_alpha(alpha)
+        return bars
+    def change_bar_colors(bars: BarContainer, facecolors: list[str]= ["yellow"], edgecolors: list[str] = ["black"], linewidth: int | float = 2, alpha: int | float = 1)-> BarContainer:
         """
-        Sends an image file to a specified Slack channel using the Slack API.
+        This function changes the colors of bars in a bar plot.
 
-        Args:
-            file_path (str): The path to the image file to be sent.
-            channel_id (str, optional): The ID of the Slack channel to send the image to. If not provided, it will attempt to read the channel ID from a JSON file named 'slack_credentials.json'.
-            slack_token (str, optional): The Slack API token. If not provided, it will attempt to read the token from the same JSON file mentioned above.
-            caption (str, optional): The caption to be displayed with the image in Slack.
-
-        Raises:
-            ValueError: If 'slack_credentials.json' file is not found or the values are not valid.
-            ValueError: If either `channel_id` or `slack_token` is missing.
+        Parameters:
+        bars (BarContainer): The container of bars in the plot.
+        facecolors (list[str]): A list of colors for the face of the bars. Default is ["yellow"].
+        edgecolors (list[str]): A list of colors for the edges of the bars. Default is ["black"].
+        linewidth (int | float): The width of the bar edges. Default is 2.
+        alpha (int | float): The transparency of the bars. Default is 1.
 
         Returns:
-            None
+        BarContainer: The modified container of bars with updated colors.
         """
-        if channel_id is None and slack_token is None:
-            if os.path.exists('slack_credentials.json'):
-                try:
-                    with open('slack_credentials.json', 'r') as openfile:
-                        json_object = json.load(openfile)
-                    channel_id = json_object.get("channel_id")
-                    slack_token = json_object.get("slack_token")
-                except ValueError:
-                    print("Please use the function 'save_slack_credentials'")
-            else:
-                raise ValueError("Please provide the channel_id and the slack_token or use the function 'save_slack_credentials'.")
-        if channel_id is None or slack_token is None:
-            raise ValueError("channel_id and slack_token are required parameters")
-        client = WebClient(token=slack_token)
-        try:
-            response = client.files_upload(
-                channels=channel_id,
-                file=file_path,
-                title=caption
-            )
-            if response["ok"]:
-                print("The photo was sent.")
-            else:
-                for key, value in response.items():
-                    print(f"{key.capitalize()}: {value}")
-        except SlackApiError as e:
-            print(f"Error uploading file: {e.response['error']}")
-    @staticmethod
-    def help_slack_bot():
+        # Create cyclic iterators for facecolors and edgecolors
+        facecolors_cycle = itertools.cycle(facecolors)
+        edgecolors_cycle = itertools.cycle(edgecolors)
+
+        # Iterate over each bar, facecolor, and edgecolor
+        for bar, facecolor, edgecolor in zip(bars, facecolors_cycle, edgecolors_cycle):
+            # Set the color, edgecolor, linewidth, and alpha of the bar
+            bar.set_color(facecolor)
+            bar.set_edgecolor(edgecolor)
+            bar.set_linewidth(linewidth)
+            bar.set_alpha(alpha)
+
+        # Return the modified bars
+        return bars
+    def highlight_max_min_bar(bars: BarContainer, max_facecolor: str | tuple = 'green', max_edgecolor: str | tuple = 'black', max_linewidth: int | float = 2, min_facecolor: str | tuple = 'red', min_edgecolor: str | tuple = 'black', min_linewidth: int | float = 2, alpha: int | float = 1)-> BarContainer:
         """
-        Provides a list of resources to help users create and configure a Slack bot.
+        This function highlights the maximum and minimum bars in a bar plot.
+
+        Parameters:
+        bars (BarContainer): The container of bars in the bar plot.
+        max_facecolor (str | tuple): The color of the maximum bar face. Default is 'green'.
+        max_edgecolor (str | tuple): The color of the maximum bar edge. Default is 'black'.
+        max_linewidth (int | float): The width of the maximum bar edge. Default is 2.
+        min_facecolor (str | tuple): The color of the minimum bar face. Default is 'red'.
+        min_edgecolor (str | tuple): The color of the minimum bar edge. Default is 'black'.
+        min_linewidth (int | float): The width of the minimum bar edge. Default is 2.
+        alpha (int | float): The transparency of the bars. Default is 1.
+
+        Returns:
+        BarContainer: The modified container of bars with highlighted maximum and minimum bars.
         """
-        print('''
-            1. Creating a slack_bot (read the first paragraph): https://medium.com/applied-data-science/how-to-build-you-own-slack-bot-714283fd16e5
-            2. Getting the channel_id (read method 1): https://www.process.st/how-to/find-slack-channel-id/ 
-            ''')
+        heights = [bar.get_height() for bar in bars]
+        min_height = np.min(heights)
+        max_height = np.max(heights)
+        for bar in bars:
+            if bar.get_height() == min_height:        
+                bar.set_color(min_facecolor)
+                bar.set_edgecolor(min_edgecolor)
+                bar.set_linewidth(min_linewidth)
+                bar.set_alpha(alpha)
+            if bar.get_height() == max_height:
+                bar.set_color(max_facecolor)
+                bar.set_edgecolor(max_edgecolor)
+                bar.set_linewidth(max_linewidth)
+                bar.set_alpha(alpha)
+        return bars
+    def hightlight_median(bars: BarContainer, facecolor: str = "purple", edgecolor: str = "black", linewidth: int | float = 2, alpha: int | float = 1) -> BarContainer:
+        """
+        Highlights the median bar in a bar plot by changing its color, edge color, line width, and transparency.
+
+        Parameters:
+        bars (BarContainer): The container of bars in the bar plot.
+        facecolor (str): The color of the median bar. Default is "purple".
+        edgecolor (str): The color of the edge of the median bar. Default is "black".
+        linewidth (int | float): The width of the line of the median bar. Default is 2.
+        alpha (int | float): The transparency of the median bar. Default is 1.
+
+        Returns:
+        BarContainer: The modified container of bars with the highlighted median bar.
+        """
+        heights = [bar.get_height() for bar in bars]
+        median_height = np.median(heights)
+        median_index = np.argmin(np.abs(np.array(heights) - median_height))
+        bars[median_index].set_color(facecolor)
+        bars[median_index].set_edgecolor(edgecolor)
+        bars[median_index].set_linewidth(linewidth)
+        bars[median_index].set_alpha(alpha)
+        return bars

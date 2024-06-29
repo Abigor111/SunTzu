@@ -8,7 +8,7 @@ import xarray as xr # type: ignore
 from .statistics import Statistics
 from typing import Optional
 
-class netCDF_Metadata(xr.Dataset):
+class netCDFMetadata(xr.Dataset):
     def get_file_variables(self: xr.Dataset) -> list:
         """
         Get the variables of the file.
@@ -126,7 +126,7 @@ class netCDF_Metadata(xr.Dataset):
             if filename:
                 Settings.export_to_file(self, filename)
             # Read the netCDF metadata
-            netCDF_Metadata.read_netCDF_metadata(self)
+            netCDFMetadata.read_netCDF_metadata(self)
     def insert_netCDF_metadata_dict(self: xr.Dataset, dictionary: dict, variables: Optional[list[str]]=None, filename: Optional[str]=None) -> None:
         """
         Inserts metadata into specified variables of a netCDF file using a provided dictionary.
@@ -170,7 +170,7 @@ class netCDF_Metadata(xr.Dataset):
             # Export the data to a file if a filename is provided
             Settings.export_to_file(self, filename)
         # Read the netCDF metadata
-        netCDF_Metadata.read_netCDF_metadata(self)
+        netCDFMetadata.read_netCDF_metadata(self)
     def insert_netCDF_metadata_json(self: xr.Dataset, json_file: str, filename: Optional[str]=None) -> None:
         """
         Inserts metadata into a netCDF file from a JSON file.
@@ -234,7 +234,7 @@ class netCDF_Metadata(xr.Dataset):
         if filename:
             Settings.export_to_file(self, filename)
         # Read the netCDF metadata
-        netCDF_Metadata.read_netCDF_metadata(self)
+        netCDFMetadata.read_netCDF_metadata(self)
     def insert_netCDF_metadata(self: xr.Dataset, via: str="input", **kwargs) -> None:
         """
         Insert metadata into the netCDF file.
@@ -252,15 +252,15 @@ class netCDF_Metadata(xr.Dataset):
             # Check if the via string is "dict"
             if via_lower == "dict":
                 # If so, call the insert_netCDF_metadata_dict function and pass the kwargs
-                netCDF_Metadata.insert_netCDF_metadata_dict(self, **kwargs)
+                netCDFMetadata.insert_netCDF_metadata_dict(self, **kwargs)
             # Check if the via string is "json"
             elif via_lower == "json":
                 # If so, call the insert_netCDF_metadata_json function and pass the kwargs
-                netCDF_Metadata.insert_netCDF_metadata_json(self, **kwargs)
+                netCDFMetadata.insert_netCDF_metadata_json(self, **kwargs)
             # Check if the via string is "input"
             elif via_lower == "input":
                 # If so, call the insert_netCDF_metadata_input function and pass the kwargs
-                netCDF_Metadata.insert_netCDF_metadata_input(self, **kwargs)
+                netCDFMetadata.insert_netCDF_metadata_input(self, **kwargs)
             # If none of the above conditions are met
             else:
                 # Raise a ValueError with the invalid via string
@@ -278,7 +278,7 @@ class netCDF_Metadata(xr.Dataset):
         Args:
             attributes (list): List of attribute names to print. If None, all attributes will be printed.
         """
-        attrs = netCDF_Metadata.get_attrs(self)
+        attrs = netCDFMetadata.get_attrs(self)
         # Check if there are any global attributes
         if not attrs:
             # Print a message if there are no global attributes
@@ -343,7 +343,7 @@ class netCDF_Metadata(xr.Dataset):
         if new_file:
             Settings.export_to_file(self, filename)
         # Read the global metadata from the netCDF file
-        netCDF_Metadata.read_global_metadata(self)
+        netCDFMetadata.read_global_metadata(self)
     def insert_netCDF_global_metadata_dict(self: xr.Dataset, dictionary: dict, new_file: bool =False, filename: str="new_file.nc") -> None:
         """
         Insert global metadata into a netCDF file.
@@ -376,7 +376,7 @@ class netCDF_Metadata(xr.Dataset):
             # Export the object to a file
             Settings.export_to_file(self, filename)
         # Read the global metadata
-        netCDF_Metadata.read_global_metadata(self)
+        netCDFMetadata.read_global_metadata(self)
     def insert_netCDF_global_metadata_json(self: xr.Dataset, json_file: str, new_file: bool=False, filename: str ="new_file.nc") -> None:
         """
         Inserts global metadata from a JSON file into a netCDF file.
@@ -432,7 +432,7 @@ class netCDF_Metadata(xr.Dataset):
         if new_file:
             Settings.export_to_file(self, filename)
         # If the read global metadata flag is set, read the global metadata
-        netCDF_Metadata.read_global_metadata(self)
+        netCDFMetadata.read_global_metadata(self)
     def insert_netCDF_global_metadata(self: xr.Dataset, via: str="input", **kwargs) -> None:
         """
         Insert global metadata into a NetCDF file.
@@ -453,15 +453,15 @@ class netCDF_Metadata(xr.Dataset):
             # Check if the via string is "dict"
             if via_lower == "dict":
                 # If so, call the function to insert netCDF global metadata from a dictionary
-                netCDF_Metadata.insert_netCDF_global_metadata_dict(self, **kwargs)
+                netCDFMetadata.insert_netCDF_global_metadata_dict(self, **kwargs)
             # Check if the via string is "json"
             elif via_lower == "json":
                 # If so, call the function to insert netCDF global metadata from JSON
-                netCDF_Metadata.insert_netCDF_global_metadata_json(self, **kwargs)
+                netCDFMetadata.insert_netCDF_global_metadata_json(self, **kwargs)
             # Check if the via string is "input"
             elif via_lower == "input":
                 # If so, call the function to insert netCDF global metadata from input
-                netCDF_Metadata.insert_netCDF_global_metadata_input(self, **kwargs)
+                netCDFMetadata.insert_netCDF_global_metadata_input(self, **kwargs)
             # If the via string is not valid, raise a ValueError
             else:
                 raise ValueError(f"{via} is not a valid metadata input.")

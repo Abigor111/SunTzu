@@ -1,3 +1,4 @@
+from typing import Optional
 from .statistics import Statistics
 import pandas as pd # type: ignore
 class Cleaning(pd.DataFrame):
@@ -192,7 +193,7 @@ class Cleaning(pd.DataFrame):
                         dataframe.at[idx, col] = new_value    
         # Return the modified DataFrame
         return dataframe
-    def capitalize_rows_string(self: pd.DataFrame, cols: pd.Series = None)  -> pd.DataFrame:
+    def capitalize_rows_string(self: pd.DataFrame, cols: Optional[pd.Series] = None)  -> pd.DataFrame:
         """
         Capitalizes the string values in the specified columns.
 
@@ -219,7 +220,7 @@ class Cleaning(pd.DataFrame):
             # Check if the column is a string
             if isinstance(col, str):
                 # If so, apply the capitalize function to the column
-                dataframe[col] = self[col].applymap(lambda x: x.capitalize() if isinstance(x, str) else x)
+                dataframe[col] = self[col].apply(lambda x: x.capitalize() if isinstance(x, str) else x)
         # Return the modified DataFrame
         return dataframe
     def lower_rows_string(self: pd.DataFrame, cols: pd.Series=None) -> pd.DataFrame:

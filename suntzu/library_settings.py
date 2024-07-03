@@ -426,22 +426,91 @@ def read_file(path: str, **kwargs) -> xr.Dataset | pd.DataFrame:
         raise RuntimeError(f"Error in reading the file {path}: {e}")
     
 def start_Cleaning(self) -> Cleaning:
+    """
+    This function initializes and returns an instance of the Cleaning class.
+
+    Parameters:
+    self (object): The current instance of the class or function.
+
+    Returns:
+    cleaning (Cleaning): An instance of the Cleaning class.
+    """
     cleaning = Cleaning(self)
     return cleaning
 def start_Optimization(self) -> Optimization:
+    """
+    This function initializes and returns an instance of the Optimization class.
+
+    Parameters:
+    self (object): The current instance of the class or function.
+
+    Returns:
+    optimization (Optimization): An instance of the Optimization class.
+    """
     optimization = Optimization(self)
     return optimization
 def start_Statistics(self) -> Statistics:
+    """
+    This function initializes and returns an instance of the Statistics class.
+
+    Parameters:
+    self (object): The current instance of the class or function.
+
+    Returns:
+    statistics (Statistics): An instance of the Statistics class.
+    """
     statistics = Statistics(self)
     return statistics
 def start_netCDFMetadata(self) -> netCDFMetadata:
+    """
+    This function initializes and returns an instance of the netCDFMetadata class.
+
+    Parameters:
+    self (object): The current instance of the class or function. This parameter is used to pass the current context or data to the netCDFMetadata class.
+
+    Returns:
+    net_cdf_metadata (netCDFMetadata): An instance of the netCDFMetadata class. This instance can be used to perform operations related to netCDF metadata.
+
+    Raises:
+    None
+    """
     net_cdf_metadata = netCDFMetadata(self)
     return net_cdf_metadata
 def start_ParquetMetadata(self) -> ParquetMetadata:
+    """
+    This function initializes and returns an instance of the ParquetMetadata class.
+
+    Parameters:
+    self (object): The current instance of the class or function. This parameter is used to pass the current context or data to the ParquetMetadata class.
+
+    Returns:
+    parquetmetadata (ParquetMetadata): An instance of the ParquetMetadata class. This instance can be used to perform operations related to Parquet metadata.
+
+    Raises:
+    None
+    """
     parquetmetadata = ParquetMetadata(self)
     return parquetmetadata
 def start_Visualization(self) -> Visualization:
+    """
+    This function initializes and returns an instance of the Visualization class.
+
+    Parameters:
+    self (object): The current instance of the class or function. This parameter is used to pass the current context or data to the Visualization class.
+
+    Returns:
+    visualization (Visualization): An instance of the Visualization class. This instance can be used to perform operations related to data visualization.
+
+    Raises:
+    None
+    """
     visualization = Visualization(self)
     return visualization
 def change_Settings() -> Settings:
+    """
+    This function returns an instance of the Settings class.
+
+    Returns:
+    Settings: An instance of the Settings class. This instance can be used to access and modify various settings related to data analysis and visualization.
+    """
     return Settings

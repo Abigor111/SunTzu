@@ -19,7 +19,6 @@ Thus, individuals who are not very proficient in programming but know how to wor
 - [Where to get it](#how-to-get-it)
 - [Libraries Used](#libraries-used)
 - [License](#license)
-- [Getting Help](#getting-help)
 - [Contributors](#contributors)
 - [Credits](#credits)
 
@@ -52,6 +51,8 @@ pip install suntzu==specific_version
 - [xarray](https://pypi.org/project/xarray/)
 - [numpy](https://pypi.org/project/numpy/)
 - [jsonschema](https://pypi.org/project/jsonschema/)
+- [matplotlib](https://pypi.org/project/matplotlib/)
+
 
 
 ## License

@@ -140,3 +140,4 @@ tox.ini
 tests
 .github
 requirements_dev.txt
+MetadataFunctions.ipynb

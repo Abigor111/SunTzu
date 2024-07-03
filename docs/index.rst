@@ -7,8 +7,8 @@ Welcome to SunTzu's documentation!
 
    introduction
    installation
-   chapters/parquet_metadata
-   chapters/netcdf_metadata
+   chapters/start
+   chapters/metadata
    chapters/optimization
    chapters/cleaning
    chapters/statistics

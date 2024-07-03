@@ -30,16 +30,6 @@ class netCDFMetadata(xr.Dataset):
 
         Returns:
             None
-
-        Example Usage:
-            # Read metadata for all variables in the NetCDF file
-            read_netCDF_metadata()
-
-            # Read metadata for specific variables in the NetCDF file
-            read_netCDF_metadata(variables=['temperature', 'humidity'])
-
-            # Read metadata for specific attributes of all variables in the NetCDF file
-            read_netCDF_metadata(attributes=['units', 'long_name'])
         """
         def read_variable_metadata(var_name: str, var):
             # Print the variable name
@@ -479,19 +469,6 @@ class ParquetMetadata(pd.DataFrame):
 
         Returns:
             None
-
-        Example Usage:
-            # Example 1: Read metadata of all columns
-            read_parquet_metadata()
-
-            # Example 2: Read metadata of specific columns
-            read_parquet_metadata(cols=['column1', 'column2'])
-
-            # Example 3: Read metadata of specific attributes
-            read_parquet_metadata(attributes=['attribute1', 'attribute2'])
-
-            # Example 4: Read metadata of specific columns and attributes
-            read_parquet_metadata(cols=['column1', 'column2'], attributes=['attribute1', 'attribute2'])
         """
         # Check if the object is a pandas DataFrame
         if isinstance(self, pd.DataFrame):
@@ -548,25 +525,26 @@ class ParquetMetadata(pd.DataFrame):
                             # If no attributes are specified, print all the metadata
                             for key, value in metadata.items():
                                 print(f"    {key}: {value}")
-    def insert_parquet_metadata_input(self: pd.DataFrame, attributes: Optional[list[str]]=None, cols: Optional[list[str]]=None, new_file: bool=False, filename: str="new_file.parquet") -> pa.Table:
+    def insert_parquet_metadata_input(self: pd.DataFrame, attributes: Optional[list[str]]=None, cols: Optional[list[str]]=None, filename: Optional[str]=None) -> pa.Table:
         """
-        Insert metadata for columns in a Parquet file.
+        Inserts metadata into a Parquet file from user input.
 
-        Args:
-            attributes (list, optional): A list of attributes for which metadata needs to be inserted. If not provided, default attributes are used.
-            cols (list, optional): A list of columns for which metadata needs to be inserted. If not provided, metadata is inserted for all columns in the DataFrame.
-            new_file (bool, optional): A boolean indicating whether to export the DataFrame to a new Parquet file. Default is False.
-            filename (str, optional): The name of the new Parquet file. Default is "new_file.parquet".
+        Parameters:
+        - self (pd.DataFrame): The DataFrame containing the data.
+        - attributes (list, optional): The list of attributes to be included in the metadata. If not provided, a default list is used.
+        - cols (list, optional): The list of columns to which the metadata will be applied. If not provided, the metadata will be applied to all columns.
+        - filename (str, optional): The path to the Parquet file where the metadata will be inserted. If not provided, the metadata will not be exported to a new file.
 
         Returns:
-            pyarrow.Table: A Parquet table with the inserted metadata.
+        - pa.Table: The Parquet table with the inserted metadata.
 
-        Example Usage:
-            # Insert metadata for all columns in a DataFrame and export it to a Parquet file
-            df.insert_parquet_metadata_input()
+        Raises:
+        - None
 
-            # Insert metadata for specific columns in a DataFrame and export it to a new Parquet file
-            df.insert_parquet_metadata_input(attributes=['Description', 'Units'], cols=['col1', 'col2'], new_file=True, filename='metadata.parquet')
+        Note:
+        - The function prompts the user to input metadata for each column and attribute.
+        - The metadata is stored in a dictionary and added to the schema of the Parquet table.
+        - If a filename is provided, the modified table is exported to the specified file.
         """
         # Set default attributes
         default_attributes = ['Description', 'Units', 'Data Source', 'Valid Range or Categories']
@@ -613,40 +591,26 @@ class ParquetMetadata(pd.DataFrame):
         # Import the File class
         from .library_settings import Settings 
         # If new_file is True, export the table to a file
-        if new_file:
+        if filename:
             Settings.export_to_file(table, filename)
         # Return the table
         return table
-    def insert_parquet_metadata_dict(self: pd.DataFrame, dictionary: dict, cols: Optional[list[str]] =None, new_file: bool =False, filename: str="new_file.parquet") -> pa.Table:
+    def insert_parquet_metadata_dict(self: pd.DataFrame, dictionary: dict, cols: Optional[list[str]] =None, filename: Optional[str]=None) -> pa.Table:
         """
-        Inserts metadata into a Parquet file based on a given dictionary.
+        Inserts metadata from a dictionary into a Parquet file.
 
-        Args:
-            dictionary (dict): A dictionary containing the metadata to be inserted into the Parquet file.
-            cols (list, optional): A list of column names to specify which columns the metadata should be inserted into. 
-                If not provided, metadata will be inserted into all columns. Default is None.
-            new_file (bool, optional): A boolean value indicating whether to create a new Parquet file with the inserted metadata. 
-                Default is False.
-            filename (str, optional): The name of the new Parquet file to be created. Default is "new_file.parquet".
+        Parameters:
+        - dictionary (dict): The dictionary containing the metadata to be inserted.
+        - cols (list, optional): The list of columns to which the metadata will be applied. If not provided, the metadata will be applied to all columns.
+        - filename (str, optional): The path to the Parquet file where the metadata will be inserted. If not provided, the metadata will not be exported to a new file.
 
         Returns:
-            pyarrow.Table: A Parquet table with the inserted metadata.
+        - pa.Table: The Parquet table with the inserted metadata.
 
         Raises:
-            ValueError: If the dictionary parameter is not provided.
-            AttributeError: If the dictionary parameter is not a dictionary.
-
-        Example Usage:
-            # Create a DataFrame
-            df = pd.DataFrame({'A': [1, 2, 3], 'B': ['a', 'b', 'c']})
-
-            # Define a dictionary with metadata
-            metadata_dict = {'A': 'This is column A', 'B': 'This is column B'}
-
-            # Insert metadata into the Parquet file
-            df.insert_parquet_metadata_dict(metadata_dict, new_file=True, filename='new_file.parquet')
+        - ValueError: If no dictionary is provided.
+        - AttributeError: If the provided dictionary is not a dictionary.
         """
-
         # Check if the dictionary is provided
         if dictionary is None:
             # Raise an error if no dictionary is provided
@@ -683,28 +647,27 @@ class ParquetMetadata(pd.DataFrame):
             # Import the File class
             from .library_settings import Settings       
             # Export the table to a file
-            if new_file:
+            if filename:
                 Settings.export_to_file(table, filename)
             # Return the table
             return table  
         else:
             # Raise an error if the dictionary is not a dictionary
             raise AttributeError(f"{dictionary} is not a dictionary.")
-    def insert_parquet_metadata_json(self: pd.DataFrame, json_file: str, new_file: bool=False, filename: str ="new_file.parquet") -> pa.Table:
+    def insert_parquet_metadata_json(self: pd.DataFrame, json_file: str, filename: Optional[str]=None) -> pa.Table:
         """
         Inserts metadata from a JSON file into a Parquet file.
 
-        Args:
-            json_file (str): The path to the JSON file containing the metadata.
-            new_file (bool, optional): Indicates whether a new Parquet file should be created. Defaults to False.
-            filename (str, optional): The name of the new Parquet file. Defaults to "new_file.parquet".
+        Parameters:
+        - json_file (str): The path to the JSON file containing the metadata.
+        - filename (str, optional): The path to the Parquet file where the metadata will be inserted. If not provided, the metadata will not be exported to a new file.
 
         Returns:
-            pyarrow.Table: The Parquet table with the updated metadata.
+        - pa.Table: The Parquet table with the inserted metadata.
 
         Raises:
-            IOError: If there is an error opening the JSON file.
-            ValidationError: If the JSON data does not match the predefined schema.
+        - IOError: If there is an error opening the JSON file.
+        - ValidationError: If the JSON data does not conform to the defined schema.
         """
         # Define a schema for validating JSON data
         schema = {
@@ -762,7 +725,7 @@ class ParquetMetadata(pd.DataFrame):
         # Import the File class
         from .library_settings import Settings
         # If a new file is being created, export the table to a file
-        if new_file:
+        if filename:
             Settings.export_to_file(table, filename)
         # Return the table
         return table

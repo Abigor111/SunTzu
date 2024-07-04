@@ -5,6 +5,9 @@ import xarray as xr
 import matplotlib.pyplot as plt
 import pyarrow.parquet as pq
 import json
+import itertools
+from matplotlib.container import BarContainer
+import numpy as np
 from slack_sdk import WebClient # type: ignore
 from slack_sdk.errors import SlackApiError # type: ignore
 
@@ -369,6 +372,133 @@ class Settings:
         plt.rcParams['lines.markeredgewidth'] = markeredgewidth
         plt.rcParams['lines.markerfacecolor'] = markerfacecolor
         plt.rcParams['lines.markersize'] = markersize
+    def show_bar_values(bars: BarContainer, fontsize: int = 12, color: str = "black", padding: int | float = 0) -> BarContainer:
+        """
+        This function adds text labels to the bars in a bar plot, displaying the actual height of each bar.
+
+        Parameters:
+        bars (BarContainer): The BarContainer object returned by the bar plot function.
+        fontsize (int): The size of the text labels. Default is 12.
+        color (str): The color of the text labels. Default is "black".
+        padding (int | float): The padding between the bar and the text label. Default is 0.
+
+        Returns:
+        BarContainer: The same BarContainer object with added text labels.
+        """
+        for bar in bars:
+            height = bar.get_height()
+            plt.text(bar.get_x() + bar.get_width() / 2.0, height + padding, f'{height}', ha='center', va='bottom', fontsize=fontsize, color=color)
+        return bars
+    def highlight_equal_values(bars: BarContainer, facecolor: str = "orange", edgecolor: str = "black", linewidth: int | float = 2, alpha: int | float = 1) -> BarContainer:
+        """
+        This function highlights bars with equal heights in a bar plot.
+
+        Parameters:
+        bars (BarContainer): The container of bars in the bar plot.
+        facecolor (str): The color to fill the highlighted bars. Default is "orange".
+        edgecolor (str): The color of the edges of the highlighted bars. Default is "black".
+        linewidth (int | float): The width of the edges of the highlighted bars. Default is 2.
+        alpha (int | float): The transparency of the highlighted bars. Default is 1.
+
+        Returns:
+        BarContainer: The modified container of bars with highlighted bars.
+        """
+        height_to_indices = {}
+        for index, bar in enumerate(bars):
+            height = bar.get_height()
+            if height not in height_to_indices:
+                height_to_indices[height] = []
+            height_to_indices[height].append(index)
+        indices_with_same_value = [indices for indices in height_to_indices.values() if len(indices) > 1]
+        flat_indices_with_same_value = [index for sublist in indices_with_same_value for index in sublist]
+        for i in flat_indices_with_same_value:
+            bars[i].set_color(facecolor)
+            bars[i].set_edgecolor(edgecolor)
+            bars[i].set_linewidth(linewidth)
+            bars[i].set_alpha(alpha)
+        return bars
+    def change_bar_colors(bars: BarContainer, facecolors: list[str]= ["yellow"], edgecolors: list[str] = ["black"], linewidth: int | float = 2, alpha: int | float = 1)-> BarContainer:
+        """
+        This function changes the colors of bars in a bar plot.
+
+        Parameters:
+        bars (BarContainer): The container of bars in the plot.
+        facecolors (list[str]): A list of colors for the face of the bars. Default is ["yellow"].
+        edgecolors (list[str]): A list of colors for the edges of the bars. Default is ["black"].
+        linewidth (int | float): The width of the bar edges. Default is 2.
+        alpha (int | float): The transparency of the bars. Default is 1.
+
+        Returns:
+        BarContainer: The modified container of bars with updated colors.
+        """
+        # Create cyclic iterators for facecolors and edgecolors
+        facecolors_cycle = itertools.cycle(facecolors)
+        edgecolors_cycle = itertools.cycle(edgecolors)
+
+        # Iterate over each bar, facecolor, and edgecolor
+        for bar, facecolor, edgecolor in zip(bars, facecolors_cycle, edgecolors_cycle):
+            # Set the color, edgecolor, linewidth, and alpha of the bar
+            bar.set_color(facecolor)
+            bar.set_edgecolor(edgecolor)
+            bar.set_linewidth(linewidth)
+            bar.set_alpha(alpha)
+
+        # Return the modified bars
+        return bars
+    def highlight_max_min_bar(bars: BarContainer, max_facecolor: str | tuple = 'green', max_edgecolor: str | tuple = 'black', max_linewidth: int | float = 2, min_facecolor: str | tuple = 'red', min_edgecolor: str | tuple = 'black', min_linewidth: int | float = 2, alpha: int | float = 1)-> BarContainer:
+        """
+        This function highlights the maximum and minimum bars in a bar plot.
+
+        Parameters:
+        bars (BarContainer): The container of bars in the bar plot.
+        max_facecolor (str | tuple): The color of the maximum bar face. Default is 'green'.
+        max_edgecolor (str | tuple): The color of the maximum bar edge. Default is 'black'.
+        max_linewidth (int | float): The width of the maximum bar edge. Default is 2.
+        min_facecolor (str | tuple): The color of the minimum bar face. Default is 'red'.
+        min_edgecolor (str | tuple): The color of the minimum bar edge. Default is 'black'.
+        min_linewidth (int | float): The width of the minimum bar edge. Default is 2.
+        alpha (int | float): The transparency of the bars. Default is 1.
+
+        Returns:
+        BarContainer: The modified container of bars with highlighted maximum and minimum bars.
+        """
+        heights = [bar.get_height() for bar in bars]
+        min_height = np.min(heights)
+        max_height = np.max(heights)
+        for bar in bars:
+            if bar.get_height() == min_height:        
+                bar.set_color(min_facecolor)
+                bar.set_edgecolor(min_edgecolor)
+                bar.set_linewidth(min_linewidth)
+                bar.set_alpha(alpha)
+            if bar.get_height() == max_height:
+                bar.set_color(max_facecolor)
+                bar.set_edgecolor(max_edgecolor)
+                bar.set_linewidth(max_linewidth)
+                bar.set_alpha(alpha)
+        return bars
+    def hightlight_median(bars: BarContainer, facecolor: str = "purple", edgecolor: str = "black", linewidth: int | float = 2, alpha: int | float = 1) -> BarContainer:
+        """
+        Highlights the median bar in a bar plot by changing its color, edge color, line width, and transparency.
+
+        Parameters:
+        bars (BarContainer): The container of bars in the bar plot.
+        facecolor (str): The color of the median bar. Default is "purple".
+        edgecolor (str): The color of the edge of the median bar. Default is "black".
+        linewidth (int | float): The width of the line of the median bar. Default is 2.
+        alpha (int | float): The transparency of the median bar. Default is 1.
+
+        Returns:
+        BarContainer: The modified container of bars with the highlighted median bar.
+        """
+        heights = [bar.get_height() for bar in bars]
+        median_height = np.median(heights)
+        median_index = np.argmin(np.abs(np.array(heights) - median_height))
+        bars[median_index].set_color(facecolor)
+        bars[median_index].set_edgecolor(edgecolor)
+        bars[median_index].set_linewidth(linewidth)
+        bars[median_index].set_alpha(alpha)
+        return bars
             
 def read_file(path: str, **kwargs) -> xr.Dataset | pd.DataFrame:
     """

@@ -205,12 +205,12 @@ class Settings:
         # Check if the filename exists
         if not os.path.isfile(filename):
             # Check if the filename has a valid file extension
-            if self.get_file_extension(filename) in suffixs:
+            if Settings.get_file_extension(filename) in suffixs:
                 # If the file extension is .nc, convert it to netCDF
-                if self.get_file_extension(filename) == ".nc":
+                if Settings.get_file_extension(filename) == ".nc":
                     self.to_netcdf(filename)
                 # If the file extension is .parquet, convert it to parquet
-                elif self.get_file_extension(filename) == ".parquet":
+                elif Settings.get_file_extension(filename) == ".parquet":
                     pq.write_table(self, filename, compression=None)        
             # Raise an error if the file extension is invalid
             else:
@@ -528,7 +528,19 @@ def read_file(path: str, **kwargs) -> xr.Dataset | pd.DataFrame:
             df = pd.read_csv(path, **kwargs)
         # If the extension is .parquet, read the file as a Parquet
         elif extension == ".parquet":
+            metadata_dict = {}
+            parquet_file = pq.ParquetFile(path)
+            schema = parquet_file.schema_arrow
+            for field in schema:
+                if field.metadata:
+                    metadata_dict[field.name] = {
+                        k.decode('utf-8'): v.decode('utf-8') for k, v in field.metadata.items()
+                    }
+
+            # Read the Parquet file into a pandas DataFrame
             df = pd.read_parquet(path, **kwargs)
+            # Attach metadata to the DataFrame
+            df.attrs['metadata'] = metadata_dict
         # If the extension is .json, read the file as a JSON
         elif extension == ".json":
             df = pd.read_json(path, **kwargs)
@@ -619,7 +631,10 @@ def start_ParquetMetadata(self) -> ParquetMetadata:
     Raises:
     None
     """
-    parquetmetadata = ParquetMetadata(self)
+    metadata = self.attrs.get("metadata") if "metadata" in self.attrs else None
+    columns = self.columns
+    dtypes = self.dtypes
+    parquetmetadata = ParquetMetadata(self, metadata, columns, dtypes)
     return parquetmetadata
 def start_Visualization(self) -> Visualization:
     """

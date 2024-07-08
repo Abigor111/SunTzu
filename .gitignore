@@ -141,3 +141,7 @@ tests
 .github
 requirements_dev.txt
 MetadataFunctions.ipynb
+examples/Football_Results_Analysis_1872_2024.ipynb
+examples/Music_1950_2019_Analysis.ipynb
+examples/Economic_Data_Post_COVID_Analysis.ipynb
+examples/Wine_Quality_Exploration.ipynb

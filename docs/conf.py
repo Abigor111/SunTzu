@@ -3,7 +3,7 @@ import os, sys
 project = 'SunTzu'
 copyright = '2023-2024, Igor Carvalheira'
 author = 'Igor Carvalheira'
-release = '0.6.0'
+release = '0.8.0'
 sys.path.insert(0, os.path.abspath("../"))
 
 

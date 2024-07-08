@@ -7,7 +7,9 @@ import pandas as pd # type: ignore
 import xarray as xr # type: ignore
 from .statistics import Statistics
 from typing import Optional
+import warnings
 
+warnings.filterwarnings("ignore", category=FutureWarning, module="abc")
 class netCDFMetadata(xr.Dataset):
     def get_file_variables(self: xr.Dataset) -> list:
         """
@@ -458,8 +460,13 @@ class netCDFMetadata(xr.Dataset):
         # If an error occurs, raise a ValueError with the error message
         except Exception as e:
             raise ValueError(f"Error inserting netCDF metadata: {str(e)}")
-class ParquetMetadata(pd.DataFrame):
-    def read_parquet_metadata(self: pd.DataFrame, attributes: Optional[list[str]] = None, cols: Optional[list[str]] = None) -> None:        
+class ParquetMetadata:
+    def __init__(self, df: pd.DataFrame, metadata: dict, columns: list[str], dtypes: list[str]):
+        self.df = df
+        self.metadata = metadata
+        self.columns = columns
+        self.dtypes = dtypes
+    def read_parquet_metadata(self, attributes=None, cols=None):
         """
         Reads the metadata of a Parquet file and prints the attributes of each column.
 
@@ -470,61 +477,29 @@ class ParquetMetadata(pd.DataFrame):
         Returns:
             None
         """
-        # Check if the object is a pandas DataFrame
-        if isinstance(self, pd.DataFrame):
-            # If it is, convert it to a pyarrow Table
-            self = pa.Table.from_pandas(self)
-        # If no columns are specified, print the names of all the columns
+        if not self.metadata:
+            print("No metadata found.")
+            return
+        
+        # If no columns are specified, print the metadata for all columns
         if cols is None:
-            for i in range(self.num_columns):
-                # Get the field from the table
-                field = self.field(i)
-                # Get the name of the column
-                col = field.name
-                print(col)
-                # If there is no metadata for the column, print a message
-                if field.metadata is None:
-                    print("    No attributes were found for this column.")
-                else:
-                    # If there is metadata, decode it and print it
-                    metadata = {key.decode('utf-8'): value.decode('utf-8') for key, value in field.metadata.items()}
-                    if attributes:
-                        # If specific attributes are specified, print them
-                        for attr in attributes:
-                            if attr in metadata:
-                                print(f"    {attr}: {metadata[attr]}")
-                            else:
-                                print(f"    The '{attr}' attribute was not found in this column's metadata.")
-                    else:
-                        # If no attributes are specified, print all the metadata
-                        for key, value in metadata.items():
-                            print(f"    {key}: {value}") 
-        else:
-            # If specific columns are specified, print the metadata for those columns
-            for i in range(self.num_columns):
-                # Get the field from the table
-                field = self.field(i)
-                # Get the name of the column
-                col = field.name
-                if col in cols:
-                    print(col)
-                    # If there is no metadata for the column, print a message
-                    if field.metadata is None:
-                        print("    No attributes were found for this column.")
-                    else:
-                        # If there is metadata, decode it and print it
-                        metadata = {key.decode('utf-8'): value.decode('utf-8') for key, value in field.metadata.items()}
-                        if attributes:
-                            # If specific attributes are specified, print them
-                            for attr in attributes:
-                                if attr in metadata:
-                                    print(f"    {attr}: {metadata[attr]}")
-                                else:
-                                    print(f"    The '{attr}' attribute was not found in this column's metadata.")
+            cols = self.df.columns
+
+        for col in cols:
+            print(f"Column: {col}")
+            if col in self.metadata:
+                col_metadata = self.metadata[col]
+                if attributes:
+                    for attr in attributes:
+                        if attr in col_metadata:
+                            print(f"    {attr}: {col_metadata[attr]}")
                         else:
-                            # If no attributes are specified, print all the metadata
-                            for key, value in metadata.items():
-                                print(f"    {key}: {value}")
+                            print(f"    The '{attr}' attribute was not found in this column's metadata.")
+                else:
+                    for key, value in col_metadata.items():
+                        print(f"    {key}: {value}")
+            else:
+                print("    No attributes were found for this column.")
     def insert_parquet_metadata_input(self: pd.DataFrame, attributes: Optional[list[str]]=None, cols: Optional[list[str]]=None, filename: Optional[str]=None) -> pa.Table:
         """
         Inserts metadata into a Parquet file from user input.
@@ -587,14 +562,13 @@ class ParquetMetadata(pd.DataFrame):
         # Create the table schema
         table_schema = pa.schema(schema)
         # Create the table from the DataFrame
-        table = pa.Table.from_pandas(self, schema=table_schema)
+        table = pa.Table.from_pandas(self.df, schema=table_schema)
         # Import the File class
         from .library_settings import Settings 
         # If new_file is True, export the table to a file
         if filename:
             Settings.export_to_file(table, filename)
         # Return the table
-        return table
     def insert_parquet_metadata_dict(self: pd.DataFrame, dictionary: dict, cols: Optional[list[str]] =None, filename: Optional[str]=None) -> pa.Table:
         """
         Inserts metadata from a dictionary into a Parquet file.
@@ -643,14 +617,13 @@ class ParquetMetadata(pd.DataFrame):
             schema = [pa.field(col, pa.type_for_alias(dtype), metadata=meta) for col, dtype, meta in cols_dtypes]
             # Create the table
             table_schema = pa.schema(schema)
-            table = pa.Table.from_pandas(self, schema=table_schema)
+            table = pa.Table.from_pandas(self.df, schema=table_schema)
             # Import the File class
             from .library_settings import Settings       
             # Export the table to a file
             if filename:
                 Settings.export_to_file(table, filename)
             # Return the table
-            return table  
         else:
             # Raise an error if the dictionary is not a dictionary
             raise AttributeError(f"{dictionary} is not a dictionary.")
@@ -696,9 +669,12 @@ class ParquetMetadata(pd.DataFrame):
         except ValidationError as e:
             raise ValidationError(str(e))
         # Get the column names and data types from the DataFrame
-        cols_dtypes = Statistics.get_cols_dtypes(self)
+        columns = self.columns
+        dtypes = self.dtypes
+        # Convert the dtypes to strings
+        cols_dtypes = zip(columns, dtypes)
         # Convert category data types to string
-        cols_dtypes = [[col, "string"] if dtype == "category" else [col, str(dtype)] for col, dtype in cols_dtypes]
+        cols_dtypes = [[col, "string"] if dtype == "category" or dtype =="object" else [col, str(dtype)] for col, dtype in cols_dtypes]
         # Initialize an empty list to store the metadata
         metadata = []
         # Iterate through the columns and their data types
@@ -721,14 +697,14 @@ class ParquetMetadata(pd.DataFrame):
         # Create a table schema from the schema list
         table_schema = pa.schema(schema)
         # Create a table from the DataFrame and table schema
-        table = pa.Table.from_pandas(self, schema=table_schema)
+
+        table = pa.Table.from_pandas(self.df, schema=table_schema)
         # Import the File class
         from .library_settings import Settings
         # If a new file is being created, export the table to a file
         if filename:
-            Settings.export_to_file(table, filename)
+            pq.write_table(table, filename, compression=None)
         # Return the table
-        return table
     def insert_parquet_metadata(self: pd.DataFrame, via: str="input", **kwargs)-> pa.Table:
         """
         Insert metadata into a Parquet file.

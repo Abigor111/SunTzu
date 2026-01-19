@@ -1,8 +1,8 @@
 Introduction Functions
 ========================
 
-.. automodule:: suntzu.library_settings
+.. automodule:: suntzu.suntzu
    :members:
    :undoc-members:
    :noindex:
-   :exclude-members: Settings
+   :exclude-members:

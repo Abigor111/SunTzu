@@ -4,7 +4,7 @@ import numpy as np
 from .errors import *
 
 class Getter:
-    # function to boost cleaning
+    # cleaning functions
     def get_best_int(col_min: int, col_max: int) -> str:
         """
         Determines the smallest integer type capable of representing a range of values.
@@ -52,13 +52,13 @@ class Getter:
                 in the range. Possible returns are "float16", "float32", or "float64".
 
         Examples:
-        >>> from suntzu import Getter
-        >>> Getter.get_best_float(0.1, 100.0)
-        'float16'
-        >>> Getter.get_best_float(-1e5, 1e5)
-        'float32'
-        >>> Getter.get_best_float(-1e40, 1e40)
-        'float64'
+            >>> from suntzu import Getter
+            >>> Getter.get_best_float(0.1, 100.0)
+            'float16'
+            >>> Getter.get_best_float(-1e5, 1e5)
+            'float32'
+            >>> Getter.get_best_float(-1e40, 1e40)
+            'float64'
         """
         if col_min >= np.finfo(np.float16).min and col_min <= np.finfo(np.float16).max:
             return "float16"
@@ -67,26 +67,53 @@ class Getter:
         else:
             return "float64"
         
-    def get_dtype(self, col: str) -> str:
-        return self[col].dtype.name
+
     
-    def get_best_dtype(self: pd.DataFrame, col: pd.Series) -> str:
-        dtype = Getter.get_dtype(self, col) # returns int || float || category || bool
-        col_min = self[col].min()
-        col_max = self[col].max()
-        if dtype == "int":
+    def get_best_dtype(self, col: str) -> str:
+        """
+        Determines the most memory-efficient data type for a column based on its values.
+
+        The method inspects the column's current data type and value range to infer
+        a more optimal dtype:
+        - Integers are downcast to the smallest possible integer type.
+        - Floats are downcast to the smallest possible floating-point type.
+        - Object columns with a low number of unique values are converted to category.
+        - Other types are returned unchanged.
+
+        Args:
+        col (str): Name of the column to analyze.
+
+        Returns:
+        str: The name of the most suitable data type for the column.
+
+        Examples:
+            >>> from suntzu import Getter
+            >>> Getter.get_best_dtype(df, "age")
+            'int8'
+            >>> Getter.get_best_dtype(df, "price")
+            'float32'
+            >>> Getter.get_best_dtype(df, "status")
+            'category'
+        """
+        dtype = self[col].dtype.name # returns int || float || category || bool
+        col_min = Getter.get_min_value(self, col)
+        col_max = Getter.get_max_value(self, col)
+        if "int" in dtype:
             dtype = Getter.get_best_int(col_min, col_max)
-        elif dtype == "float":
+        elif "float" in dtype:
             dtype = Getter.get_best_float(col_min, col_max)
+        elif dtype == "object":
+            if self[col].nunique() <= 10:
+                dtype = "category"
         return dtype
     
     # statistics functions
-    def get_max_value(self: pd.DataFrame, col: pd.Series) -> int | str:
+    def get_max_value(self: pd.DataFrame, col: str) -> int | str:
         """
         Returns the maximum value of a DataFrame column, handling different data types appropriately.
 
         Args:
-            col (pd.Series): The column of the DataFrame to inspect.
+            col (str): The column of the DataFrame to inspect.
 
         Returns:
             int | str: 
@@ -108,9 +135,9 @@ class Getter:
             'x'
         """
 
-        dtype = Getter.get_dtype(self, col)
+        dtype = self[col].dtype.name
         try:
-            if not dtype in ["categorical", "bool"]:
+            if not dtype in ["categorical", "bool", "object"]:
                 value = self[col].max()
             else:
                 value = self[col].mode()[0]
@@ -118,12 +145,12 @@ class Getter:
             raise MixedDtypeError(f"Column '{col}' contains mixed types (e.g., str + float) or null values. Please try cleaning it.")
 
         return value
-    def get_min_value(self: pd.DataFrame, col: pd.Series) -> int | str:
+    def get_min_value(self: pd.DataFrame, col: str) -> int | str:
         """
         Returns the minimum value of a DataFrame column, handling different data types appropriately.
 
         Args:
-            col (pd.Series): The column of the DataFrame to inspect.
+            col (str): The column of the DataFrame to inspect.
 
         Returns:
             int | str: 
@@ -145,54 +172,110 @@ class Getter:
             'y'
         """
 
-        dtype = Getter.get_dtype(self, col)
+        dtype = self[col].dtype.name
         try:
-            if not dtype in ["categorical", "bool"]:
+            if not dtype in ["categorical", "bool", "object"]:
                 value = self[col].min()
             else:
-                value = self[col].value_counts()[-1]
+                value = self[col].value_counts().idxmin()
         except TypeError:
             raise MixedDtypeError(f"Column '{col}' contains mixed types (e.g., str + float) or null values. Please try cleaning it.")
 
         return value
-    def get_nulls_count(self, col: pd.Series) -> int:
+
+    
+    def get_memory_usage(self, col, unit) -> float:
         """
-        Counts the number of null values in a specific DataFrame column.
+        Calculates the memory usage of a specific column in the DataFrame.
 
         Args:
-            col (pd.Series): The column to check for null values.
+            col (str): Name of the column to measure.
+            unit (str): Unit for memory measurement. Options are:
+                - "b" for bytes
+                - "kb" for kilobytes
+                - "mb" for megabytes
 
         Returns:
-            int: The number of null values in the column.
+            float: Memory usage of the specified column, rounded to 2 decimal places.
 
         Examples:
-            >>> from suntzu import Getter
-            >>> import pandas as pd
-            >>> df = pd.DataFrame({'a': [1, None, 2], 'b': [None, None, True]})
-            >>> Getter.get_nulls_count(df, 'a')
-            1
-            >>> Getter.get_nulls_count(df, 'b')
-            2
+            >>> df.get_memory_usage("age", "kb")
+            12.5
+            >>> df.get_memory_usage("price", "mb")
+            0.01
         """
-        return self[col].isnull().sum()
-    def get_unique_values(self, col: str) -> int:
+        conversion_factors = {
+            "kb": 1024,
+            "mb": 1024**2,
+            "b": 1
+        }
+        conversion_factor = conversion_factors[unit]
+        
+        memory_usage = self[col].memory_usage(deep=True)
+        value_numeric = round(memory_usage / conversion_factor, 2)
+        
+    
+        return value_numeric
+    def get_total_memory_usage(self, unit) -> float:
         """
-        Returns the number of unique values in a specific DataFrame column.
+        Calculates the total memory usage of the DataFrame in the specified unit.
 
         Args:
-            col (str): The name of the column to inspect.
+            unit (str): Unit for memory measurement. Options are:
+                - "b" for bytes
+                - "kb" for kilobytes
+                - "mb" for megabytes
 
         Returns:
-            int: The count of unique values in the column.
+            float: Total memory usage of the DataFrame, rounded to 2 decimal places.
 
         Examples:
-            >>> from suntzu import Getter
-            >>> import pandas as pd
-            >>> df = pd.DataFrame({'a': [1, 2, 2], 'b': ['x', 'y', 'x', 'z']})
-            >>> Getter.get_unique_values(df, 'a')
-            2
-            >>> Getter.get_unique_values(df, 'b')
-            3
+            >>> df.get_total_memory_usage("kb")
+            125.5
+            >>> df.get_total_memory_usage("mb")
+            0.12
         """
+        conversion_factors = {
+            "kb": 1024,
+            "mb": 1024**2,
+            "b": 1
+        }
+        conversion_factor = conversion_factors[unit]
+        total_usage = self.memory_usage(deep=True).sum()
+        total_usage = round(total_usage / conversion_factor, 2)
+        return total_usage
+    
+    def get_memory_insights(self, col:str, total_usage: int) -> list:
 
-        return self[col].nunique()
+        nulls_count: int = self[col].isnull().sum()
+        col_size: int = len(self[col]) 
+        value_numeric = Getter.get_memory_usage(self, col, "kb")
+        
+        value_percentage = round((value_numeric/total_usage)*100, 2)
+        
+        try:
+            col_info: list[str] = [  
+                col,  
+                self[col].dtype.name,  
+                Getter.get_best_dtype(self, col),  
+                f"{value_numeric} kb",  
+                f"{value_percentage}%",  
+                nulls_count,  
+                f"{round(nulls_count/col_size, 2)}%",  
+                self[col].nunique(),  
+            ]
+        # This error stops the whole function so we handle it to continue and give a warning
+        except MixedDtypeError:
+            print(f"WARNING: {col} has missing values, so the best dtype could not be found")
+            col_info: list[str] = [  
+                col,  
+                self[col].dtype.name,  
+                "???",  
+                f"{value_numeric} kb",
+                f"{value_percentage}%",
+                nulls_count,  
+                f"{round(nulls_count/col_size, 2)}%",  
+                self[col].nunique(),  
+            ] 
+        finally:
+            return col_info

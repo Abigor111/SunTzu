@@ -1,28 +1,18 @@
 Introduction
 ============
 
-**SunTzu** is a Python library created for data enthusiasts, with its main objective being to simplify the tasks of managing metadata and data manipulation. 
-
-This library is powered by multiple libraries and improves compatibility between them, empowering them with the conversion to functions of the most tedious tasks of some libraries. 
-
-To put it simply, this library is a robust solution for simplifying data science workflows, making the integration of various tools easier. 
-
-Thus, individuals who are not very proficient in programming but know how to work with data can enhance their data science skills and start conducting faster and more meaningful data analysis.
-
-Main Features
-------------
-
-- Inserting and Reading Metadata on netCDF and Parquet files
-- Multiple functions for data cleaning
-- Visualizing the usage of memory in the dataframes
-- Improving the memory usage of the dataframes
-- Facilitating the creation of graphs and automatically sending them to workspaces such as Slack and Telegram
+**SunTzu** is a simple Python library that built on top of pandas and numpy to make simple pre data analysis procedures.
+Like:
+- Finding optimal dtypes for each column
+- Quickly see memory usage
+- Turn 2-value columns into `bool` to save memory
+- Quickly see max, min, null, unique values of your dataframe
 
 Licence
 ----------
 MIT License
 
-Copyright (c) 2023-2024 Igor Carvalheira
+Copyright (c) 2023-2026 Igor Carvalheira
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal

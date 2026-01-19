@@ -1,10 +1,4 @@
 sphinx
 sphinx-rtd-theme
 pandas
-xarray
-pyarrow
 numpy
-jsonschema
-IPython
-slack_sdk
-matplotlib

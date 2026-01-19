@@ -8,10 +8,7 @@ Welcome to SunTzu's documentation!
    introduction
    installation
    chapters/start
-   chapters/metadata
-   chapters/optimization
+   chapters/getter
    chapters/cleaning
    chapters/statistics
-   chapters/visualization
-   chapters/settings
    authors

@@ -1,35 +1,22 @@
-<div align="center">
-  <img src="https://i.imgur.com/vUEEcII.png" alt="SunTzu Logo"><br>
-</div>
+# SunTzu
+**SunTzu** is a simple Python library that built on top of pandas and numpy to make simple pre data analysis procedures.
+Like:
+- Finding optimal dtypes for each column
+- Quickly see memory usage
+- Turn 2-value columns into `bool` to save memory
+- Quickly see max, min, null, unique values of your dataframe
 
-# SunTzu: The Art of Data Science
+## 📑 Table of Contents
 
-## What is SunTzu?
-**SunTzu** is a Python library created for data enthusiasts, with its main objective being to simplify the tasks of managing metadata and data manipulation. 
-
-This library is powered by multiple libraries and improves compatibility between them, empowering them with the conversion to functions of the most tedious tasks of some libraries. 
-
-To put it simply, this library is a robust solution for simplifying data science workflows, making the integration of various tools easier. 
-
-Thus, individuals who are not very proficient in programming but know how to work with data can enhance their data science skills and start conducting faster and more meaningful data analysis.
-
-## Table of Contents
-
-- [Main Features](#main-features)
-- [Where to get it](#how-to-get-it)
-- [Libraries Used](#libraries-used)
+- [How to install it](#how-to-install-it)
+- [Inside the Project](#-inside-the-project)
+    - [What I learned](#-what-i-learned)
+    - [Libraries Used](#libraries-used)
 - [License](#license)
-- [Contributors](#contributors)
 - [Credits](#credits)
+    
 
-## Main Features
-- Inserting and Reading Metadata on netCDF and Parquet files
-- Multiple functions for data cleaning
-- Visualizing the usage of memory in the dataframes
-- Improving the memory usage of the dataframes
-- Facilitating the creation of graphs and automatically sending them to workspaces such as Slack and Telegram
-
-## How to get it?
+## 📦 How to install it?
 Currently, you can find:
  - Source code: [GitHub Repository](https://github.com/Abigor111/SunTzu)
  - Documentation: [Read the Docs](https://suntzu.readthedocs.io/en/latest/index.html)
@@ -43,24 +30,24 @@ If you want to install a specific version use:
 ```sh
 pip install suntzu==specific_version
 ```
+## 🔧 Inside The Project
 
+This project was my 12th grade final project. I chose to build it to explore how Python packages are created. It was an ambitious project and I learned a lot throughout the process. In the end, it received the highest possible grade.
 
-## Libraries Used
+### 📚 What I Learned
+- OOP Concepts
+- Python Package Distribution
+- Creating documention for Python Packages
+---
+### 💻 Technologies Used
 - [pandas](https://pypi.org/project/pandas/)
-- [pyarrow](https://pypi.org/project/pyarrow/)
-- [xarray](https://pypi.org/project/xarray/)
 - [numpy](https://pypi.org/project/numpy/)
-- [jsonschema](https://pypi.org/project/jsonschema/)
-- [matplotlib](https://pypi.org/project/matplotlib/)
+---
 
-
-
-## License
+### 🚀 Future Steps
+This project was later revamped. The original version had a poor OOP structure and accessing the functions was much harder than it should’ve been. It also included visualization and metadata features, which I decided to split into separate libraries. Once those libraries are finished, I’ll link them here.
+## 📜 License
 [MIT](LICENSE)
 
-## Contributors
-None yet. Why not be the first to contribute?
-
-If you are not sure how can you contribute to SunTzu check this page: [CONTRIBUTING](CONTRIBUTING.md)
-## Credits
+## 🙌 Credits
  - This package was created with [Cookiecutter](https://github.com/audreyr/cookiecutter) and the [`audreyr/cookiecutter-pypackage`](https://github.com/audreyr/cookiecutter-pypackage) project template.

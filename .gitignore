@@ -137,7 +137,6 @@ tox.ini
 .pypirc
 /imgs
 .gitattributes
-tests
 .github
 requirements_dev.txt
 MetadataFunctions.ipynb
